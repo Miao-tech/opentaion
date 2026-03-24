@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenTalon — UX Design Direction</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Recharts-free bar chart using CSS */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 192px;
+      padding: 0 0 24px 0;
+      position: relative;
+    }
+    .bar-chart::after {
+      content: '';
+      position: absolute;
+      bottom: 24px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #e5e7eb;
+    }
+    .bar {
+      flex: 1;
+      background: #2563eb;
+      border-radius: 2px 2px 0 0;
+      min-height: 4px;
+      transition: opacity 150ms;
+    }
+    .bar:hover { opacity: 0.75; }
+    .bar-label {
+      position: absolute;
+      bottom: 0;
+      font-size: 10px;
+      color: #6b7280;
+    }
+    .bar-label.left { left: 0; }
+    .bar-label.right { right: 0; }
+
+    /* New key banner shimmer */
+    .new-key-banner {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans text-sm text-gray-900 antialiased">
+
+  <!-- ================================================================
+       SECTION 1: UNAUTHENTICATED STATE (Login)
+       ================================================================ -->
+  <div class="min-h-screen bg-gray-50 flex flex-col">
+    <div class="flex-1 flex items-center justify-center">
+      <div class="w-full max-w-sm">
+
+        <!-- Logo -->
+        <div class="text-center mb-8">
+          <span class="text-xl font-semibold text-gray-900">OpenTalon</span>
+          <p class="mt-1 text-sm text-gray-500">Usage visibility for agentic AI</p>
+        </div>
+
+        <!-- Login card -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+          <div>
+            <h1 class="text-base font-semibold text-gray-900">Sign in to your dashboard</h1>
+            <p class="mt-1 text-sm text-gray-500">We'll send a magic link to your email.</p>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="you@example.com"
+                class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <button
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Send magic link
+            </button>
+          </div>
+        </div>
+
+        <!-- Post-send state (shown below as a second example) -->
+        <div class="mt-4 bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+          <div>
+            <h1 class="text-base font-semibold text-gray-900">Check your email</h1>
+            <p class="mt-1 text-sm text-gray-500">We sent a sign-in link to <span class="text-gray-900 font-medium">miao@example.com</span></p>
+          </div>
+          <p class="text-sm text-gray-500">The link expires in 10 minutes. Check your spam folder if you don't see it.</p>
+          <button class="text-sm text-blue-600 hover:text-blue-700 transition-colors duration-150 focus:outline-none focus:underline">
+            Resend link
+          </button>
+        </div>
+
+        <p class="mt-6 text-center text-xs text-gray-400">OpenTalon v0.1.0</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t-4 border-blue-600 my-0"></div>
+
+  <!-- ================================================================
+       SECTION 2: AUTHENTICATED LAYOUT — DASHBOARD VIEW
+       ================================================================ -->
+  <div class="flex h-screen bg-gray-50" style="min-height: 600px;">
+
+    <!-- Sidebar -->
+    <aside class="w-[220px] bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
+      <!-- Brand -->
+      <div class="px-4 py-5 border-b border-gray-200">
+        <span class="text-base font-semibold text-gray-900">OpenTalon</span>
+      </div>
+
+      <!-- Nav -->
+      <nav class="flex-1 px-2 py-4 space-y-1">
+        <p class="px-2 pb-1 text-xs font-medium text-gray-500 uppercase tracking-widest">Navigation</p>
+
+        <!-- Active: Dashboard -->
+        <button class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-blue-600 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+          <!-- icon placeholder -->
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Dashboard
+        </button>
+
+        <!-- Inactive: API Keys -->
+        <button class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+          </svg>
+          API Keys
+        </button>
+      </nav>
+
+      <!-- Footer -->
+      <div class="px-4 py-4 border-t border-gray-200">
+        <p class="text-xs text-gray-400">miao@example.com</p>
+        <button class="mt-1 text-xs text-gray-500 hover:text-gray-700 transition-colors duration-150">Sign out</button>
+      </div>
+    </aside>
+
+    <!-- Main: Dashboard -->
+    <main class="flex-1 overflow-y-auto p-6">
+      <div class="max-w-3xl">
+
+        <!-- Page heading -->
+        <h1 class="text-xl font-semibold text-gray-900 mb-6">Usage — Last 30 Days</h1>
+
+        <!-- Chart card -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+          <div class="relative bar-chart">
+            <!-- 30 bars; heights represent daily token volumes (illustrative) -->
+            <div class="bar" style="height:12%" aria-label="Feb 22: 2,400 tokens"></div>
+            <div class="bar" style="height:8%"  aria-label="Feb 23: 1,600 tokens"></div>
+            <div class="bar" style="height:24%" aria-label="Feb 24: 4,800 tokens"></div>
+            <div class="bar" style="height:18%" aria-label="Feb 25: 3,600 tokens"></div>
+            <div class="bar" style="height:5%"  aria-label="Feb 26: 1,000 tokens"></div>
+            <div class="bar" style="height:5%"  aria-label="Feb 27: 1,000 tokens"></div>
+            <div class="bar" style="height:32%" aria-label="Feb 28: 6,400 tokens"></div>
+            <div class="bar" style="height:28%" aria-label="Mar 1: 5,600 tokens"></div>
+            <div class="bar" style="height:15%" aria-label="Mar 2: 3,000 tokens"></div>
+            <div class="bar" style="height:20%" aria-label="Mar 3: 4,000 tokens"></div>
+            <div class="bar" style="height:38%" aria-label="Mar 4: 7,600 tokens"></div>
+            <div class="bar" style="height:22%" aria-label="Mar 5: 4,400 tokens"></div>
+            <div class="bar" style="height:10%" aria-label="Mar 6: 2,000 tokens"></div>
+            <div class="bar" style="height:8%"  aria-label="Mar 7: 1,600 tokens"></div>
+            <div class="bar" style="height:45%" aria-label="Mar 8: 9,000 tokens"></div>
+            <div class="bar" style="height:35%" aria-label="Mar 9: 7,000 tokens"></div>
+            <div class="bar" style="height:25%" aria-label="Mar 10: 5,000 tokens"></div>
+            <div class="bar" style="height:18%" aria-label="Mar 11: 3,600 tokens"></div>
+            <div class="bar" style="height:12%" aria-label="Mar 12: 2,400 tokens"></div>
+            <div class="bar" style="height:55%" aria-label="Mar 13: 11,000 tokens — spike"></div>
+            <div class="bar" style="height:48%" aria-label="Mar 14: 9,600 tokens"></div>
+            <div class="bar" style="height:30%" aria-label="Mar 15: 6,000 tokens"></div>
+            <div class="bar" style="height:15%" aria-label="Mar 16: 3,000 tokens"></div>
+            <div class="bar" style="height:10%" aria-label="Mar 17: 2,000 tokens"></div>
+            <div class="bar" style="height:8%"  aria-label="Mar 18: 1,600 tokens"></div>
+            <div class="bar" style="height:22%" aria-label="Mar 19: 4,400 tokens"></div>
+            <div class="bar" style="height:40%" aria-label="Mar 20: 8,000 tokens"></div>
+            <div class="bar" style="height:28%" aria-label="Mar 21: 5,600 tokens"></div>
+            <div class="bar" style="height:20%" aria-label="Mar 22: 4,000 tokens"></div>
+            <div class="bar" style="height:14%" aria-label="Mar 23: 2,800 tokens"></div>
+
+            <!-- Date axis labels -->
+            <span class="bar-label left">Feb 22</span>
+            <span class="bar-label right">Mar 23</span>
+          </div>
+        </div>
+
+        <!-- Per-model breakdown table -->
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-widest">Model</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-widest">Tokens</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-widest">Cost</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr>
+                <td class="px-6 py-3 text-sm text-gray-900">deepseek/deepseek-r1</td>
+                <td class="px-6 py-3 text-sm text-gray-500 text-right">124,400</td>
+                <td class="px-6 py-3 text-sm text-gray-900 text-right">$0.0124</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-3 text-sm text-gray-900">meta-llama/llama-3.3-70b</td>
+                <td class="px-6 py-3 text-sm text-gray-500 text-right">88,200</td>
+                <td class="px-6 py-3 text-sm text-gray-900 text-right">$0.0882</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-3 text-sm text-gray-900">qwen/qwen-2.5-72b</td>
+                <td class="px-6 py-3 text-sm text-gray-500 text-right">31,100</td>
+                <td class="px-6 py-3 text-sm text-gray-900 text-right">$0.0311</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="border-t border-gray-200 bg-gray-50">
+                <td class="px-6 py-3 text-sm font-medium text-gray-900">Total</td>
+                <td class="px-6 py-3 text-sm font-medium text-gray-900 text-right">243,700</td>
+                <td class="px-6 py-3 text-sm font-medium text-gray-900 text-right">$0.1317</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="border-t-4 border-blue-600 my-0"></div>
+
+  <!-- ================================================================
+       SECTION 3: AUTHENTICATED LAYOUT — API KEYS VIEW
+       ================================================================ -->
+  <div class="flex h-screen bg-gray-50" style="min-height: 560px;">
+
+    <!-- Sidebar (API Keys active) -->
+    <aside class="w-[220px] bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
+      <div class="px-4 py-5 border-b border-gray-200">
+        <span class="text-base font-semibold text-gray-900">OpenTalon</span>
+      </div>
+      <nav class="flex-1 px-2 py-4 space-y-1">
+        <p class="px-2 pb-1 text-xs font-medium text-gray-500 uppercase tracking-widest">Navigation</p>
+
+        <!-- Inactive: Dashboard -->
+        <button class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Dashboard
+        </button>
+
+        <!-- Active: API Keys -->
+        <button class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-blue-600 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+          </svg>
+          API Keys
+        </button>
+      </nav>
+      <div class="px-4 py-4 border-t border-gray-200">
+        <p class="text-xs text-gray-400">miao@example.com</p>
+        <button class="mt-1 text-xs text-gray-500 hover:text-gray-700 transition-colors duration-150">Sign out</button>
+      </div>
+    </aside>
+
+    <!-- Main: API Keys -->
+    <main class="flex-1 overflow-y-auto p-6">
+      <div class="max-w-2xl">
+
+        <!-- Page heading + action -->
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-xl font-semibold text-gray-900">API Keys</h1>
+          <button class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Generate new key
+          </button>
+        </div>
+
+        <!-- New key banner (shown after generation) -->
+        <div class="new-key-banner p-4 mb-6">
+          <div class="flex items-start gap-3">
+            <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div class="flex-1 space-y-3">
+              <p class="text-sm font-medium text-blue-900">Copy this key now — it won't be shown again.</p>
+              <div class="flex items-center gap-3">
+                <code class="font-mono text-xs text-gray-700 bg-white border border-gray-200 rounded px-3 py-2 flex-1 select-all">
+                  ot_sk_7f3a9b2c4d1e8f5a6b3c9d0e2f4a7b8c1d5e9f0a3b6c2d4e8f1a5b9c0d3e7f2a4b8c1d6e0f
+                </code>
+                <button class="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors duration-150 whitespace-nowrap focus:outline-none focus:underline">
+                  Copy
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Keys table -->
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-widest">Key</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-widest">Created</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-widest">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr>
+                <td class="px-6 py-3">
+                  <code class="font-mono text-xs text-gray-600">ot_sk_...d891e2</code>
+                </td>
+                <td class="px-6 py-3 text-sm text-gray-500">Mar 23, 2026</td>
+                <td class="px-6 py-3 text-right">
+                  <button class="text-sm text-red-600 hover:text-red-700 transition-colors duration-150 focus:outline-none focus:underline">
+                    Revoke
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-3">
+                  <code class="font-mono text-xs text-gray-600">ot_sk_...4f2a91</code>
+                </td>
+                <td class="px-6 py-3 text-sm text-gray-500">Mar 15, 2026</td>
+                <td class="px-6 py-3 text-right">
+                  <button class="text-sm text-red-600 hover:text-red-700 transition-colors duration-150 focus:outline-none focus:underline">
+                    Revoke
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Empty state (shown when no keys exist) -->
+          <div class="hidden px-6 py-10 text-center">
+            <p class="text-sm text-gray-500">No API keys yet. Generate one to connect your CLI.</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="border-t-4 border-blue-600 my-0"></div>
+
+  <!-- ================================================================
+       SECTION 4: TERMINAL OUTPUT REFERENCE
+       (For book chapters — shows the Rich CLI color system)
+       ================================================================ -->
+  <div class="bg-gray-900 p-8">
+    <div class="max-w-2xl mx-auto">
+      <p class="text-xs text-gray-500 uppercase tracking-widest mb-4">Terminal Output Reference — Rich Style Guide</p>
+
+      <!-- Daily task execution -->
+      <div class="font-mono text-sm space-y-1 mb-8">
+        <p class="text-gray-400">$ opentaion /effort low "add docstrings to utils.py"</p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p class="text-gray-500">&nbsp;&nbsp;<span class="text-gray-600">◆</span> Model: deepseek/deepseek-r1 <span class="text-gray-600">(low tier)</span></p>
+        <p class="text-gray-500">&nbsp;&nbsp;<span class="text-gray-600">◆</span> Reading utils.py...</p>
+        <p class="text-gray-500">&nbsp;&nbsp;<span class="text-gray-600">◆</span> Generating docstrings...</p>
+        <p class="text-gray-500">&nbsp;&nbsp;<span class="text-gray-600">◆</span> Applying changes...</p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p>
+          <span class="text-white font-bold">✓ Task complete.</span>
+          &nbsp;&nbsp;
+          <span class="text-gray-500">Tokens: 3,800</span>
+          &nbsp;&nbsp;<span class="text-gray-600">|</span>&nbsp;&nbsp;
+          <span class="text-cyan-400 font-bold">Cost: $0.0004</span>
+        </p>
+      </div>
+
+      <!-- Proxy error -->
+      <div class="font-mono text-sm space-y-1 mb-8">
+        <p class="text-gray-400">$ opentaion /effort medium "refactor the auth module"</p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p class="text-gray-500">&nbsp;&nbsp;<span class="text-gray-600">◆</span> Model: meta-llama/llama-3.3-70b <span class="text-gray-600">(medium tier)</span></p>
+        <p class="text-gray-500">&nbsp;&nbsp;<span class="text-gray-600">◆</span> Reading auth module...</p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p class="text-red-400 font-bold">✗ Proxy unreachable: https://your-api.railway.app</p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p class="text-gray-400">&nbsp;&nbsp;Could not connect to the OpenTalon API server.</p>
+        <p class="text-gray-400">&nbsp;&nbsp;Check that your Railway deployment is running.</p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p class="text-gray-400">&nbsp;&nbsp;Run <span class="text-cyan-400">`opentaion login`</span> to update your proxy URL.</p>
+      </div>
+
+      <!-- Login flow -->
+      <div class="font-mono text-sm space-y-1">
+        <p class="text-gray-400">$ opentaion login</p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p class="text-white font-bold">OpenTalon Setup</p>
+        <p class="text-gray-600">───────────────────────────────────────</p>
+        <p class="text-gray-400">&nbsp;&nbsp;First, start your OpenTalon API server and grab its URL.</p>
+        <p class="text-gray-400">&nbsp;&nbsp;Then, generate an API key from your dashboard.</p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p class="text-gray-300">&nbsp;&nbsp;Proxy URL (e.g. https://your-api.railway.app): <span class="text-white">https://opentalon.railway.app</span></p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p class="text-gray-300">&nbsp;&nbsp;OpenTalon API Key: <span class="text-white">ot_sk_7f3a9b2c...</span></p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p class="text-white font-bold">✓ Connected to https://opentalon.railway.app</p>
+        <p class="text-white font-bold">✓ Configuration saved to ~/.opentaion/config.json</p>
+        <p class="text-gray-500">&nbsp;</p>
+        <p class="text-gray-400">&nbsp;&nbsp;You're ready. Run: <span class="text-cyan-400">opentaion /effort low "your first task"</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       DESIGN TOKEN REFERENCE (bottom of file — for implementors)
+       ================================================================ -->
+  <div class="bg-white border-t border-gray-200 p-8">
+    <div class="max-w-2xl mx-auto">
+      <p class="text-xs text-gray-500 uppercase tracking-widest mb-4">Design Token Quick Reference</p>
+      <div class="grid grid-cols-2 gap-4 text-xs font-mono text-gray-600">
+        <div>
+          <p class="font-sans font-medium text-gray-700 mb-2">Colors</p>
+          <p>bg-gray-50 — page background</p>
+          <p>bg-white — surface</p>
+          <p>border-gray-200 — dividers</p>
+          <p>text-gray-900 — primary text</p>
+          <p>text-gray-500 — secondary text</p>
+          <p>bg-blue-600 / text-blue-600 — accent</p>
+          <p>bg-blue-50 — accent subtle</p>
+          <p>text-red-600 — destructive</p>
+        </div>
+        <div>
+          <p class="font-sans font-medium text-gray-700 mb-2">Typography</p>
+          <p>text-xl font-semibold — page heading</p>
+          <p>text-xs font-medium uppercase tracking-widest — section label</p>
+          <p>text-sm text-gray-900 — body</p>
+          <p>text-sm text-gray-500 — metadata</p>
+          <p>font-mono text-xs — key preview</p>
+          <br/>
+          <p class="font-sans font-medium text-gray-700 mb-2">Layout</p>
+          <p>w-[220px] — sidebar width</p>
+          <p>p-6 — content outer padding</p>
+          <p>space-y-6 — section spacing</p>
+          <p>h-48 — chart height</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-postgres"],
+      "env": {
+        "DATABASE_URL": "postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres"
+      },
+      "type": "stdio"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp", "--browser", "chromium"],
+      "type": "stdio"
+    }
+  }
+}
