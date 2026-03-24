@@ -2,9 +2,6 @@
 # Railway build and deploy configuration for the OpenTalon API.
 # Root directory in Railway must be set to "api/" for this file to be detected.
 
-[build]
-builder = "nixpacks"
-
 [deploy]
 startCommand = "uv run fastapi run src/opentaion_api/main.py --host 0.0.0.0 --port $PORT"
 healthcheckPath = "/health"
