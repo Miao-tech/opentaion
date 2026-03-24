@@ -11,8 +11,8 @@ __pycache__/
 .hypothesis/
 .pytest_cache/
 *.egg-info/
-dist/
 build/
+# dist/ is NOT ignored — cli/dist/ contains the release tarball for Homebrew
 *.egg
 .ruff_cache/
 .mypy_cache/
