@@ -2,7 +2,7 @@
 import os
 import uuid
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from opentaion_api.deps import verify_api_key
@@ -48,6 +48,39 @@ async def debug_test_api_key_dep(
     user_id: uuid.UUID = Depends(verify_api_key),
 ) -> dict:
     return {"status": "ok", "user_id": str(user_id)}
+
+
+@app.post("/debug/test-full-proxy")
+async def debug_test_full_proxy(
+    request: Request,
+    user_id: uuid.UUID = Depends(verify_api_key),
+) -> dict:
+    """Simulate full proxy flow with step-by-step error capture."""
+    import httpx as _httpx
+    steps = {"auth": str(user_id)}
+    try:
+        body = await request.body()
+        steps["body_bytes"] = len(body)
+    except Exception as e:
+        return {"failed_at": "body", "error": str(e)}
+    try:
+        key = os.environ["OPENROUTER_API_KEY"]
+        steps["key_set"] = True
+    except Exception as e:
+        return {"failed_at": "env", "error": str(e)}
+    try:
+        async with _httpx.AsyncClient() as client:
+            r = await client.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                content=body,
+                headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+                timeout=30.0,
+            )
+        steps["openrouter_status"] = r.status_code
+        steps["openrouter_body"] = r.text[:200]
+    except Exception as e:
+        return {"failed_at": "openrouter", "error": type(e).__name__, "detail": str(e), "steps": steps}
+    return {"status": "ok", "steps": steps}
 
 
 @app.get("/debug/openrouter")
