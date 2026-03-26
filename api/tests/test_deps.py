@@ -8,17 +8,26 @@ from unittest.mock import AsyncMock, MagicMock
 import bcrypt as _bcrypt
 import jwt as pyjwt
 import pytest
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import HTTPException
+from jwt.algorithms import RSAAlgorithm
 
 from opentaion_api.deps import verify_api_key, verify_supabase_jwt
 
-TEST_JWT_SECRET = "test-supabase-jwt-secret-for-testing-only"
+# Generate a test RSA key pair once for the entire test module
+_TEST_PRIVATE_KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+_TEST_PUBLIC_KEY_JWK = RSAAlgorithm.to_jwk(_TEST_PRIVATE_KEY.public_key())
+
+# A second key pair for "wrong key" tests
+_OTHER_PRIVATE_KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 
 
 # ── Test helpers ─────────────────────────────────────────────────────────────
 
-def make_test_jwt(user_id: str, secret: str = TEST_JWT_SECRET, expired: bool = False) -> str:
-    """Create a signed Supabase-shaped JWT for testing."""
+def make_test_jwt(user_id: str, private_key=None, expired: bool = False) -> str:
+    """Create a signed Supabase-shaped JWT for testing (RS256)."""
+    if private_key is None:
+        private_key = _TEST_PRIVATE_KEY
     now = int(time.time())
     return pyjwt.encode(
         {
@@ -27,8 +36,8 @@ def make_test_jwt(user_id: str, secret: str = TEST_JWT_SECRET, expired: bool = F
             "exp": now - 10 if expired else now + 3600,
             "iat": now,
         },
-        secret,
-        algorithm="HS256",
+        private_key,
+        algorithm="RS256",
     )
 
 
@@ -101,7 +110,7 @@ async def test_verify_api_key_none_header_raises_401():
 @pytest.mark.asyncio
 async def test_verify_supabase_jwt_valid_returns_user_id(monkeypatch):
     user_id = str(uuid.uuid4())
-    monkeypatch.setenv("SUPABASE_JWT_SECRET", TEST_JWT_SECRET)
+    monkeypatch.setenv("SUPABASE_JWT_PUBLIC_KEY", _TEST_PUBLIC_KEY_JWK)
     token = make_test_jwt(user_id)
     result = await verify_supabase_jwt(authorization=f"Bearer {token}")
     assert result == uuid.UUID(user_id)
@@ -109,7 +118,7 @@ async def test_verify_supabase_jwt_valid_returns_user_id(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_verify_supabase_jwt_expired_raises_401(monkeypatch):
-    monkeypatch.setenv("SUPABASE_JWT_SECRET", TEST_JWT_SECRET)
+    monkeypatch.setenv("SUPABASE_JWT_PUBLIC_KEY", _TEST_PUBLIC_KEY_JWK)
     token = make_test_jwt(str(uuid.uuid4()), expired=True)
     with pytest.raises(HTTPException) as exc_info:
         await verify_supabase_jwt(authorization=f"Bearer {token}")
@@ -118,8 +127,8 @@ async def test_verify_supabase_jwt_expired_raises_401(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_verify_supabase_jwt_wrong_secret_raises_401(monkeypatch):
-    monkeypatch.setenv("SUPABASE_JWT_SECRET", TEST_JWT_SECRET)
-    token = make_test_jwt(str(uuid.uuid4()), secret="wrong-secret")
+    monkeypatch.setenv("SUPABASE_JWT_PUBLIC_KEY", _TEST_PUBLIC_KEY_JWK)
+    token = make_test_jwt(str(uuid.uuid4()), private_key=_OTHER_PRIVATE_KEY)
     with pytest.raises(HTTPException) as exc_info:
         await verify_supabase_jwt(authorization=f"Bearer {token}")
     assert exc_info.value.status_code == 401
@@ -127,7 +136,7 @@ async def test_verify_supabase_jwt_wrong_secret_raises_401(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_verify_supabase_jwt_missing_bearer_raises_401(monkeypatch):
-    monkeypatch.setenv("SUPABASE_JWT_SECRET", TEST_JWT_SECRET)
+    monkeypatch.setenv("SUPABASE_JWT_PUBLIC_KEY", _TEST_PUBLIC_KEY_JWK)
     token = make_test_jwt(str(uuid.uuid4()))
     with pytest.raises(HTTPException) as exc_info:
         await verify_supabase_jwt(authorization=token)  # no "Bearer " prefix
@@ -136,7 +145,7 @@ async def test_verify_supabase_jwt_missing_bearer_raises_401(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_verify_supabase_jwt_none_header_raises_401(monkeypatch):
-    monkeypatch.setenv("SUPABASE_JWT_SECRET", TEST_JWT_SECRET)
+    monkeypatch.setenv("SUPABASE_JWT_PUBLIC_KEY", _TEST_PUBLIC_KEY_JWK)
     with pytest.raises(HTTPException) as exc_info:
         await verify_supabase_jwt(authorization=None)
     assert exc_info.value.status_code == 401
@@ -144,7 +153,7 @@ async def test_verify_supabase_jwt_none_header_raises_401(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_verify_supabase_jwt_missing_secret_raises_500(monkeypatch):
-    monkeypatch.delenv("SUPABASE_JWT_SECRET", raising=False)
+    monkeypatch.delenv("SUPABASE_JWT_PUBLIC_KEY", raising=False)
     token = make_test_jwt(str(uuid.uuid4()))
     with pytest.raises(HTTPException) as exc_info:
         await verify_supabase_jwt(authorization=f"Bearer {token}")

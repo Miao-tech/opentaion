@@ -53,7 +53,7 @@ async def verify_supabase_jwt(
     """
     Validate a Supabase Auth JWT from the Authorization header.
 
-    Verifies signature against SUPABASE_JWT_SECRET (HS256).
+    Verifies signature against SUPABASE_JWT_PUBLIC_KEY (RS256 JWK).
     Supabase user tokens always have aud="authenticated".
     Extracts the `sub` claim (user UUID) and returns it.
 
@@ -64,15 +64,17 @@ async def verify_supabase_jwt(
 
     token = authorization.removeprefix("Bearer ").strip()
 
-    secret = os.environ.get("SUPABASE_JWT_SECRET", "")
-    if not secret:
+    jwk_json = os.environ.get("SUPABASE_JWT_PUBLIC_KEY", "")
+    if not jwk_json:
         raise HTTPException(status_code=500, detail="Server configuration error")
 
     try:
+        from jwt.algorithms import RSAAlgorithm
+        public_key = RSAAlgorithm.from_jwk(jwk_json)
         payload = jwt.decode(
             token,
-            secret,
-            algorithms=["HS256"],
+            public_key,
+            algorithms=["RS256"],
             audience="authenticated",
         )
         return uuid.UUID(payload["sub"])
