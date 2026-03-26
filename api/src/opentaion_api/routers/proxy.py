@@ -78,6 +78,8 @@ async def proxy_chat_completions(
         raise HTTPException(status_code=504, detail="Upstream timeout")
     except httpx.ConnectError:
         raise HTTPException(status_code=502, detail="Upstream unreachable")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Unexpected error: {type(e).__name__}: {e}")
 
     if openrouter_response.status_code >= 400:
         raise HTTPException(
