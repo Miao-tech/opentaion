@@ -31,6 +31,19 @@ async def health() -> dict:
     return {"status": "ok"}
 
 
+@app.get("/debug/db")
+async def debug_db() -> dict:
+    """Temporary endpoint to diagnose DB connection."""
+    try:
+        from sqlalchemy import text
+        from opentaion_api.database import engine
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        return {"status": "ok"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/debug/jwt-config")
 async def debug_jwt_config() -> dict:
     """Temporary endpoint to diagnose JWT configuration. Remove after fix."""
