@@ -35,12 +35,12 @@ async def health() -> dict:
 async def debug_jwt_config() -> dict:
     """Temporary endpoint to diagnose JWT configuration. Remove after fix."""
     import os
-    from jwt.algorithms import RSAAlgorithm
+    from jwt.algorithms import ECAlgorithm
     jwk_json = os.environ.get("SUPABASE_JWT_PUBLIC_KEY", "")
     if not jwk_json:
         return {"error": "SUPABASE_JWT_PUBLIC_KEY not set"}
     try:
-        RSAAlgorithm.from_jwk(jwk_json)
+        ECAlgorithm.from_jwk(jwk_json)
         return {"status": "ok", "key_length": len(jwk_json), "starts_with": jwk_json[:20]}
     except Exception as e:
         return {"error": str(e), "key_length": len(jwk_json), "starts_with": jwk_json[:20]}
