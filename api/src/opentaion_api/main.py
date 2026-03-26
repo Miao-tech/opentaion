@@ -44,6 +44,29 @@ async def debug_db() -> dict:
         return {"error": str(e)}
 
 
+@app.get("/debug/db-insert")
+async def debug_db_insert() -> dict:
+    """Temporary endpoint to test DB INSERT into api_keys."""
+    import secrets, uuid
+    import bcrypt
+    from opentaion_api.database import AsyncSessionLocal
+    from opentaion_api.models import ApiKey
+    try:
+        key = "ot_" + secrets.token_urlsafe(24)
+        key_hash = bcrypt.hashpw(key.encode(), bcrypt.gensalt(rounds=4)).decode()
+        async with AsyncSessionLocal() as db:
+            new_key = ApiKey(
+                user_id=uuid.uuid4(),
+                key_hash=key_hash,
+                key_prefix=key[:12],
+            )
+            db.add(new_key)
+            await db.commit()
+        return {"status": "ok"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/debug/jwt-config")
 async def debug_jwt_config() -> dict:
     """Temporary endpoint to diagnose JWT configuration. Remove after fix."""
