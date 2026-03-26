@@ -4,6 +4,8 @@ import uuid
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, Response
+from starlette.background import BackgroundTasks
 
 from opentaion_api.deps import verify_api_key
 from opentaion_api.routers import keys, proxy, usage
@@ -26,6 +28,35 @@ app.add_middleware(
 app.include_router(keys.router, prefix="/api")
 app.include_router(proxy.router)  # no prefix — endpoint is /v1/chat/completions
 app.include_router(usage.router, prefix="/api")  # → GET /api/usage
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    return JSONResponse(
+        status_code=500,
+        content={"error": type(exc).__name__, "detail": str(exc)},
+    )
+
+
+@app.post("/v1/chat/completions/debug-full")
+async def debug_v1_full(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    user_id: uuid.UUID = Depends(verify_api_key),
+) -> Response:
+    """Simulate the real proxy endpoint signature, return raw Response."""
+    import httpx as _httpx
+    key = os.environ["OPENROUTER_API_KEY"]
+    body = await request.body()
+    async with _httpx.AsyncClient() as client:
+        r = await client.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            content=body,
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            timeout=30.0,
+        )
+    return Response(content=r.content, status_code=r.status_code,
+                    media_type=r.headers.get("content-type", "application/json"))
 
 
 @app.get("/health")
