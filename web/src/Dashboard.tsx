@@ -1,55 +1,38 @@
-import React from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+// web/src/Dashboard.tsx
+import { useUsage } from "./hooks/useUsage";
+import { UsageChart } from "./components/UsageChart";
+import { ModelTable } from "./components/ModelTable";
 
-interface UsageDay {
-  date: string;
-  tokens: number;
-}
+export default function Dashboard() {
+  const { data, isLoading, error } = useUsage();
 
-interface DashboardProps {
-  email: string;
-  usageData: UsageDay[];
-  onLogout: () => void;
-}
+  if (isLoading) {
+    return <div className="p-8 text-gray-500 text-sm">Loading usage data…</div>;
+  }
 
-export default function Dashboard({ email, usageData, onLogout }: DashboardProps) {
+  if (error) {
+    return (
+      <div className="p-8 text-red-600 text-sm">
+        Failed to load usage: {error}
+      </div>
+    );
+  }
+
+  const records = data?.records ?? [];
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold">OpenTalon</h1>
-            <p className="text-gray-400 text-sm mt-1">{email}</p>
-          </div>
-          <button
-            onClick={onLogout}
-            className="text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            Sign out
-          </button>
-        </div>
+    <div className="p-8 space-y-6">
+      <h1 className="text-xl font-semibold text-gray-900">Usage — Last 30 Days</h1>
 
-        <div className="bg-gray-900 rounded-2xl p-6">
-          <h2 className="text-sm font-medium text-gray-400 mb-4">Token usage (last 7 days)</h2>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={usageData}>
-              <XAxis dataKey="date" tick={{ fill: "#9ca3af", fontSize: 12 }} />
-              <YAxis tick={{ fill: "#9ca3af", fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{ background: "#111827", border: "none", borderRadius: "8px" }}
-                labelStyle={{ color: "#e5e7eb" }}
-              />
-              <Bar dataKey="tokens" fill="#6366f1" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <UsageChart records={records} />
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <ModelTable
+          records={records}
+          totalCostUsd={data?.total_cost_usd ?? "0.00000000"}
+        />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 # Story 1.5: Deploy API to Railway with Auto-Restart
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -39,35 +39,35 @@ Then it is redirected to HTTPS (Railway handles TLS termination — no app-level
 - [x] Task 2: Create `api/railway.toml` with explicit build and deploy config (AC: 1, 3)
   - [x] Create `api/railway.toml` with start command, health check path, and restart policy (see Dev Notes)
 
-- [ ] Task 3: Push code to GitHub (prerequisite for Railway)
-  - [ ] Ensure the project is in a GitHub repository (create one if not already)
-  - [ ] Commit and push all changes from Stories 1.1–1.5
+- [x] Task 3: Push code to GitHub (prerequisite for Railway)
+  - [x] Ensure the project is in a GitHub repository (create one if not already)
+  - [x] Commit and push all changes from Stories 1.1–1.5
 
-- [ ] Task 4: Create Railway project and connect to GitHub (AC: 1, 3, 4)
-  - [ ] Sign in to railway.app (create free account if needed)
-  - [ ] New Project → Deploy from GitHub repo → select your repository
-  - [ ] In the service settings, set **Root Directory** to `api` (see Dev Notes)
-  - [ ] Railway will auto-detect Python via `pyproject.toml`
+- [x] Task 4: Create Railway project and connect to GitHub (AC: 1, 3, 4)
+  - [x] Sign in to railway.app (create free account if needed)
+  - [x] New Project → Deploy from GitHub repo → select your repository
+  - [x] In the service settings, set **Root Directory** to `api` (see Dev Notes)
+  - [x] Railway will auto-detect Python via `pyproject.toml`
 
-- [ ] Task 5: Configure all environment variables in Railway (AC: 2)
-  - [ ] In the Railway service: Variables tab → add each variable (see Dev Notes for exact values)
-  - [ ] `DATABASE_URL` — use `postgresql+asyncpg://` scheme (see Dev Notes)
-  - [ ] `SUPABASE_URL` — from Supabase project settings
-  - [ ] `SUPABASE_SERVICE_ROLE_KEY` — from Supabase project settings → API → service_role key
-  - [ ] `SUPABASE_JWT_SECRET` — from Supabase project settings → API → JWT Settings → JWT Secret
-  - [ ] `OPENROUTER_API_KEY` — from openrouter.ai → Keys
+- [x] Task 5: Configure all environment variables in Railway (AC: 2)
+  - [x] In the Railway service: Variables tab → add each variable (see Dev Notes for exact values)
+  - [x] `DATABASE_URL` — use `postgresql+asyncpg://` scheme (see Dev Notes)
+  - [x] `SUPABASE_URL` — from Supabase project settings
+  - [x] `SUPABASE_SERVICE_ROLE_KEY` — from Supabase project settings → API → service_role key
+  - [x] `SUPABASE_JWT_SECRET` — from Supabase project settings → API → JWT Settings → JWT Secret
+  - [x] `OPENROUTER_API_KEY` — from openrouter.ai → Keys
 
-- [ ] Task 6: Configure health check and restart policy (AC: 3)
-  - [ ] Service settings → Deploy tab → Health check path: `/health`
-  - [ ] Restart policy: "On failure" (Railway default — verify it is set)
-  - [ ] Note: `railway.toml` already sets these; this step confirms they appear in the UI
+- [x] Task 6: Configure health check and restart policy (AC: 3)
+  - [x] Service settings → Deploy tab → Health check path: `/health`
+  - [x] Restart policy: "On failure" (Railway default — verify it is set)
+  - [x] Note: `railway.toml` already sets these; this step confirms they appear in the UI
 
-- [ ] Task 7: Deploy and verify (AC: 1, 4)
-  - [ ] Trigger deployment (Railway deploys automatically on push, or click "Deploy" manually)
-  - [ ] Watch build logs — confirm `uv sync` and startup succeed
-  - [ ] Wait for service to become "Active" (green)
-  - [ ] Run: `curl https://<your-app>.up.railway.app/health`
-  - [ ] Expected: `{"status":"ok"}` with HTTP 200
+- [x] Task 7: Deploy and verify (AC: 1, 4)
+  - [x] Trigger deployment (Railway deploys automatically on push, or click "Deploy" manually)
+  - [x] Watch build logs — confirm `uv sync` and startup succeed
+  - [x] Wait for service to become "Active" (green)
+  - [x] Run: `curl https://<your-app>.up.railway.app/health`
+  - [x] Expected: `{"status":"ok"}` with HTTP 200
 
 ## Dev Notes
 
@@ -275,9 +275,13 @@ _none_
 
 - Task 1: `database.py` URL scheme replacement was already correctly implemented in Story 1.2. Added `tests/test_database_url.py` (5 tests) to verify the normalization logic: postgresql:// → postgresql+asyncpg://, no-op for already-correct scheme, empty string, non-postgresql schemes, and single-replacement guarantee.
 - Task 2: Created `api/railway.toml` with nixpacks builder, `fastapi run` production start command, `0.0.0.0:$PORT` binding, `/health` healthcheck with 300s timeout, and `on_failure` restart policy with 10 retries.
-- Tasks 3–7 require manual steps (GitHub push, Railway project creation, env var configuration, deployment verification) — awaiting user completion.
+- Tasks 3–7 (manual): GitHub push, Railway project setup with Root Directory=api, 5 env vars configured, Nixpacks build succeeded, health endpoint verified: GET /health → {"status":"ok"} HTTP 200.
+- Railpack 0.22.0 could not detect the uv project — resolved by restoring builder="nixpacks" in railway.toml and setting Root Directory to "api" in Railway UI.
 
 ### File List
 
 - `api/railway.toml` (NEW)
 - `api/tests/test_database_url.py` (NEW)
+- `api/Procfile` (NEW)
+- `api/start.sh` (NEW)
+- `.gitignore` (NEW)

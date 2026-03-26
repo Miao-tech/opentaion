@@ -1,0 +1,216 @@
+diff --git a/web/src/App.tsx b/web/src/App.tsx
+index b899b7e..6bc7279 100644
+--- a/web/src/App.tsx
++++ b/web/src/App.tsx
+@@ -1,15 +1,17 @@
+ // src/App.tsx
+ import { useEffect, useState } from 'react'
+-import { createClient } from '@supabase/supabase-js'
+ import type { User } from '@supabase/supabase-js'
++import { supabase } from './lib/supabase'
++import { LoginForm } from './components/LoginForm'
++import { Sidebar } from './components/Sidebar'
++import { ApiKeysView } from './components/ApiKeysView'
++import Dashboard from './Dashboard'
+ 
+-const supabase = createClient(
+-  import.meta.env.VITE_SUPABASE_URL as string,
+-  import.meta.env.VITE_SUPABASE_ANON_KEY as string
+-)
++type View = 'dashboard' | 'keys'
+ 
+ function App() {
+   const [user, setUser] = useState<User | null>(null)
++  const [activeView, setActiveView] = useState<View>('dashboard')
+ 
+   useEffect(() => {
+     supabase.auth.getSession().then(({ data: { session } }) => {
+@@ -19,13 +21,29 @@ function App() {
+     const {
+       data: { subscription },
+     } = supabase.auth.onAuthStateChange((_event, session) => {
++      if (session?.user) setActiveView('dashboard')
+       setUser(session?.user ?? null)
+     })
+ 
+     return () => subscription.unsubscribe()
+   }, [])
+ 
+-  return user ? <div>Dashboard</div> : <div>Login</div>
++  if (!user) {
++    return <LoginForm />
++  }
++
++  return (
++    <div className="flex h-screen bg-gray-50">
++      <Sidebar activeView={activeView} onViewChange={setActiveView} />
++      <main className="flex-1 overflow-auto p-6">
++        {activeView === 'dashboard' ? (
++          <Dashboard />
++        ) : (
++          <ApiKeysView />
++        )}
++      </main>
++    </div>
++  )
+ }
+ 
+ export default App
+diff --git a/web/src/Dashboard.tsx b/web/src/Dashboard.tsx
+index d34a737..b862961 100644
+--- a/web/src/Dashboard.tsx
++++ b/web/src/Dashboard.tsx
+@@ -1,55 +1,38 @@
+-import React from "react";
+-import {
+-  BarChart,
+-  Bar,
+-  XAxis,
+-  YAxis,
+-  Tooltip,
+-  ResponsiveContainer,
+-} from "recharts";
++// web/src/Dashboard.tsx
++import { useUsage } from "./hooks/useUsage";
++import { UsageChart } from "./components/UsageChart";
++import { ModelTable } from "./components/ModelTable";
+ 
+-interface UsageDay {
+-  date: string;
+-  tokens: number;
+-}
++export default function Dashboard() {
++  const { data, isLoading, error } = useUsage();
+ 
+-interface DashboardProps {
+-  email: string;
+-  usageData: UsageDay[];
+-  onLogout: () => void;
+-}
++  if (isLoading) {
++    return <div className="p-8 text-gray-500 text-sm">Loading usage data…</div>;
++  }
++
++  if (error) {
++    return (
++      <div className="p-8 text-red-600 text-sm">
++        Failed to load usage: {error}
++      </div>
++    );
++  }
++
++  const records = data?.records ?? [];
+ 
+-export default function Dashboard({ email, usageData, onLogout }: DashboardProps) {
+   return (
+-    <div className="min-h-screen bg-gray-950 text-white p-8">
+-      <div className="max-w-3xl mx-auto">
+-        <div className="flex items-center justify-between mb-8">
+-          <div>
+-            <h1 className="text-2xl font-bold">OpenTalon</h1>
+-            <p className="text-gray-400 text-sm mt-1">{email}</p>
+-          </div>
+-          <button
+-            onClick={onLogout}
+-            className="text-sm text-gray-400 hover:text-white transition-colors"
+-          >
+-            Sign out
+-          </button>
+-        </div>
++    <div className="p-8 space-y-6">
++      <h1 className="text-xl font-semibold text-gray-900">Usage — Last 30 Days</h1>
++
++      <div className="bg-white rounded-lg border border-gray-200 p-6">
++        <UsageChart records={records} />
++      </div>
+ 
+-        <div className="bg-gray-900 rounded-2xl p-6">
+-          <h2 className="text-sm font-medium text-gray-400 mb-4">Token usage (last 7 days)</h2>
+-          <ResponsiveContainer width="100%" height={200}>
+-            <BarChart data={usageData}>
+-              <XAxis dataKey="date" tick={{ fill: "#9ca3af", fontSize: 12 }} />
+-              <YAxis tick={{ fill: "#9ca3af", fontSize: 12 }} />
+-              <Tooltip
+-                contentStyle={{ background: "#111827", border: "none", borderRadius: "8px" }}
+-                labelStyle={{ color: "#e5e7eb" }}
+-              />
+-              <Bar dataKey="tokens" fill="#6366f1" radius={[4, 4, 0, 0]} />
+-            </BarChart>
+-          </ResponsiveContainer>
+-        </div>
++      <div className="bg-white rounded-lg border border-gray-200 p-6">
++        <ModelTable
++          records={records}
++          totalCostUsd={data?.total_cost_usd ?? "0.00000000"}
++        />
+       </div>
+     </div>
+   );
+diff --git a/web/src/Login.tsx b/web/src/Login.tsx
+deleted file mode 100644
+index 4db6093..0000000
+--- a/web/src/Login.tsx
++++ /dev/null
+@@ -1,46 +0,0 @@
+-import React, { useState } from "react";
+-
+-interface LoginProps {
+-  onLogin: (email: string) => void;
+-}
+-
+-export default function Login({ onLogin }: LoginProps) {
+-  const [email, setEmail] = useState("");
+-  const [sent, setSent] = useState(false);
+-
+-  function handleSubmit(e: React.FormEvent) {
+-    e.preventDefault();
+-    if (!email) return;
+-    onLogin(email);
+-    setSent(true);
+-  }
+-
+-  return (
+-    <div className="min-h-screen flex items-center justify-center bg-gray-950">
+-      <div className="bg-gray-900 rounded-2xl p-8 w-full max-w-sm shadow-xl">
+-        <h1 className="text-2xl font-bold text-white mb-2">OpenTalon</h1>
+-        <p className="text-gray-400 mb-6 text-sm">Sign in with a magic link</p>
+-        {sent ? (
+-          <p className="text-green-400 text-sm">Check your email for a magic link.</p>
+-        ) : (
+-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+-            <input
+-              type="email"
+-              value={email}
+-              onChange={(e) => setEmail(e.target.value)}
+-              placeholder="you@example.com"
+-              className="bg-gray-800 text-white rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+-              required
+-            />
+-            <button
+-              type="submit"
+-              className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+-            >
+-              Send magic link
+-            </button>
+-          </form>
+-        )}
+-      </div>
+-    </div>
+-  );
+-}
+diff --git a/web/src/vite-env.d.ts b/web/src/vite-env.d.ts
+index 11f02fe..77fc458 100644
+--- a/web/src/vite-env.d.ts
++++ b/web/src/vite-env.d.ts
+@@ -1 +1,11 @@
+ /// <reference types="vite/client" />
++
++interface ImportMetaEnv {
++  readonly VITE_SUPABASE_URL: string
++  readonly VITE_SUPABASE_ANON_KEY: string
++  readonly VITE_API_BASE_URL: string
++}
++
++interface ImportMeta {
++  readonly env: ImportMetaEnv
++}

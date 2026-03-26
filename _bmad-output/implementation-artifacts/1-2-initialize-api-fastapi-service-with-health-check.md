@@ -1,6 +1,6 @@
 # Story 1.2: Initialize API FastAPI Service with Health Check
 
-Status: review
+Status: done
 
 ## Story
 

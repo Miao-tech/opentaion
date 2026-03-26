@@ -1,6 +1,6 @@
 # Story 1.3: Initialize Web SPA with Tailwind and Recharts
 
-Status: review
+Status: done
 
 ## Story
 

@@ -9,9 +9,8 @@ requires-python = ">=3.12"
 dependencies = [
     "click>=8.0",
     "rich>=13.0",
-    "httpx>=0.27",
-    "python-dotenv>=1.0",
-    "tiktoken>=0.7",
+    "httpx",
+    "python-dotenv",
 ]
 
 [project.scripts]
@@ -26,9 +25,7 @@ testpaths = ["tests"]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.0",
-    "pytest-asyncio>=0.23",
+    "pytest",
+    "pytest-asyncio",
     "hypothesis>=6.0",
-    "ruff>=0.4",
-    "black>=24.0",
 ]

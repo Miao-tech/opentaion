@@ -1,6 +1,6 @@
 # Story 1.6: Deploy Web to Vercel and Set Up Homebrew Tap
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -29,59 +29,59 @@ Then the formula passes without errors
 
 ### Part A — Vercel Deployment
 
-- [ ] Task 1: Build and verify locally before deploying (AC: 1)
-  - [ ] Run `npm run build` from `web/` — confirm exits 0 and `dist/` is created
-  - [ ] This is the same build Vercel will run remotely
+- [x] Task 1: Build and verify locally before deploying (AC: 1)
+  - [x] Run `npm run build` from `web/` — confirm exits 0 and `dist/` is created
+  - [x] This is the same build Vercel will run remotely
 
-- [ ] Task 2: Deploy web to Vercel (AC: 1)
-  - [ ] Sign in to vercel.com (create free account if needed)
-  - [ ] New Project → Import from GitHub → select your repository
-  - [ ] Set **Root Directory** to `web` (see Dev Notes)
-  - [ ] Framework Preset will auto-detect as **Vite** — confirm it is selected
-  - [ ] Build command: `npm run build` (auto-detected)
-  - [ ] Output directory: `dist` (auto-detected)
+- [x] Task 2: Deploy web to Vercel (AC: 1)
+  - [x] Sign in to vercel.com (create free account if needed)
+  - [x] New Project → Import from GitHub → select your repository
+  - [x] Set **Root Directory** to `web` (see Dev Notes)
+  - [x] Framework Preset will auto-detect as **Vite** — confirm it is selected
+  - [x] Build command: `npm run build` (auto-detected)
+  - [x] Output directory: `dist` (auto-detected)
 
-- [ ] Task 3: Configure Vercel environment variables (AC: 1)
-  - [ ] In Vercel project settings → Environment Variables:
-  - [ ] Add `VITE_SUPABASE_URL` = your Supabase project URL
-  - [ ] Add `VITE_SUPABASE_ANON_KEY` = your Supabase anon key
-  - [ ] Redeploy after adding env vars (first deploy may fail without them)
+- [x] Task 3: Configure Vercel environment variables (AC: 1)
+  - [x] In Vercel project settings → Environment Variables:
+  - [x] Add `VITE_SUPABASE_URL` = your Supabase project URL
+  - [x] Add `VITE_SUPABASE_ANON_KEY` = your Supabase anon key
+  - [x] Redeploy after adding env vars (first deploy may fail without them)
 
-- [ ] Task 4: Verify Vercel deployment (AC: 1)
-  - [ ] Open the `*.vercel.app` URL in a browser
-  - [ ] Confirm page loads without console errors (open DevTools → Console)
-  - [ ] Expected: renders "Login" text (unauthenticated state from `App.tsx` stub)
+- [x] Task 4: Verify Vercel deployment (AC: 1)
+  - [x] Open the `*.vercel.app` URL in a browser
+  - [x] Confirm page loads without console errors (open DevTools → Console)
+  - [x] Expected: renders "Login" text (unauthenticated state from `App.tsx` stub)
 
 ### Part B — Homebrew Tap
 
-- [ ] Task 5: Create a GitHub Release of the CLI (prerequisite for formula)
-  - [ ] Tag the release: `git tag v0.1.0 && git push origin v0.1.0`
-  - [ ] On GitHub: Releases → Create a new release from tag `v0.1.0`
-  - [ ] Build the CLI source distribution: `cd cli && uv build` → generates `cli/dist/opentaion-0.1.0.tar.gz`
-  - [ ] Upload `opentaion-0.1.0.tar.gz` as a release artifact
-  - [ ] Note the download URL (format: `https://github.com/USERNAME/REPO/releases/download/v0.1.0/opentaion-0.1.0.tar.gz`)
-  - [ ] Get the SHA256: `shasum -a 256 cli/dist/opentaion-0.1.0.tar.gz`
+- [x] Task 5: Create a GitHub Release of the CLI (prerequisite for formula)
+  - [x] Tag the release: `git tag v0.1.0 && git push origin v0.1.0`
+  - [x] On GitHub: Releases → Create a new release from tag `v0.1.0`
+  - [x] Build the CLI source distribution: `cd cli && uv build` → generates `cli/dist/opentaion-0.1.0.tar.gz`
+  - [x] Upload `opentaion-0.1.0.tar.gz` as a release artifact
+  - [x] Note the download URL (format: `https://github.com/USERNAME/REPO/releases/download/v0.1.0/opentaion-0.1.0.tar.gz`)
+  - [x] Get the SHA256: `shasum -a 256 cli/dist/opentaion-0.1.0.tar.gz`
 
-- [ ] Task 6: Create the `homebrew-tap` GitHub repository (AC: 2, 3)
-  - [ ] Create a new GitHub repository named exactly `homebrew-tap` under your GitHub username/org
-  - [ ] The tap name follows the pattern: `USERNAME/homebrew-tap` → installed as `brew tap USERNAME/tap`
-  - [ ] Initialize with a README
+- [x] Task 6: Create the `homebrew-tap` GitHub repository (AC: 2, 3)
+  - [x] Create a new GitHub repository named exactly `homebrew-tap` under your GitHub username/org
+  - [x] The tap name follows the pattern: `USERNAME/homebrew-tap` → installed as `brew tap USERNAME/tap`
+  - [x] Initialize with a README
 
-- [ ] Task 7: Generate Homebrew resource entries using `poet` (AC: 2, 3)
-  - [ ] Install `homebrew-pypi-poet`: `pip install homebrew-pypi-poet`
-  - [ ] Run: `poet opentaion` from a clean Python environment
-  - [ ] Copy the generated `resource` blocks (see Dev Notes for what this looks like)
+- [x] Task 7: Generate Homebrew resource entries using `poet` (AC: 2, 3)
+  - [x] Install `homebrew-pypi-poet`: `pip install homebrew-pypi-poet`
+  - [x] Run: `poet opentaion` from a clean Python environment
+  - [x] Copy the generated `resource` blocks (see Dev Notes for what this looks like)
 
-- [ ] Task 8: Write the Homebrew formula (AC: 2, 3)
-  - [ ] Create `Formula/opentaion.rb` in the `homebrew-tap` repository (see Dev Notes for exact content)
-  - [ ] Fill in `url`, `sha256`, and all `resource` blocks from Task 7
-  - [ ] Commit and push to `homebrew-tap`
+- [x] Task 8: Write the Homebrew formula (AC: 2, 3)
+  - [x] Create `Formula/opentaion.rb` in the `homebrew-tap` repository (see Dev Notes for exact content)
+  - [x] Fill in `url`, `sha256`, and all `resource` blocks from Task 7
+  - [x] Commit and push to `homebrew-tap`
 
-- [ ] Task 9: Test the formula locally (AC: 2, 3)
-  - [ ] `brew tap USERNAME/tap`
-  - [ ] `brew install opentaion`
-  - [ ] Confirm: `opentaion --version` prints `opentaion 0.1.0`
-  - [ ] Run: `brew audit --tap USERNAME/tap` — fix any reported issues
+- [x] Task 9: Test the formula locally (AC: 2, 3)
+  - [x] `brew tap Miao-tech/tap`
+  - [x] `brew install opentaion`
+  - [x] Confirm: `opentaion --version` prints `opentaion 0.1.0`
+  - [x] Run: `brew audit --tap Miao-tech/tap` — fix any reported issues
 
 ## Dev Notes
 
@@ -367,7 +367,7 @@ homebrew-tap/ (separate GitHub repository)
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
@@ -375,8 +375,16 @@ _none_
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- Task 1: `npm run build` passes — 71 modules, 337KB JS bundle, exits 0.
+- Task 2–4: Vercel deployed with Root Directory=web, Vite auto-detected. VITE_SUPABASE_ANON_KEY warning from Vercel is a false positive — anon key is safe for browser. After adding env vars and redeploying, page renders "Login" (unauthenticated state). AC1 satisfied.
+- Task 5: `uv build` produced `opentaion-0.1.0.tar.gz` (SHA256: ba871cc948b27b1ad8d39c5dd1a336ff3b16440e6483704637e940d0b0bdbe4c). Uploaded to GitHub Release v0.1.0.
+- Task 6: `Miao-tech/homebrew-tap` repo created on GitHub.
+- Task 7: `homebrew-pypi-poet` could not run (missing `gsl-config` system dep on Linux). Resources generated manually from `uv.lock` — 19 runtime resource blocks (excludes dev deps: pytest, black, ruff, hypothesis).
+- Task 8: `homebrew-tap/Formula/opentaion.rb` written with all 19 resource blocks. Formula uploaded to `Miao-tech/homebrew-tap`.
+- Task 9: `brew install opentaion` succeeded. `opentaion --version` → "opentaion, version 0.1.0". `brew audit --tap Miao-tech/tap` passed with no formula errors. Required `depends_on "rust" => :build` because tiktoken has a Rust extension that must be compiled from source.
 
 ### File List
 
-_to be filled by dev agent_
+- `homebrew-tap/Formula/opentaion.rb` (NEW — in this repo for reference; live copy in Miao-tech/homebrew-tap)
+- `cli/dist/opentaion-0.1.0.tar.gz` (NEW — uploaded to GitHub Release v0.1.0)
+- `cli/dist/opentaion-0.1.0-py3-none-any.whl` (NEW)

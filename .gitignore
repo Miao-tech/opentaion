@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.local.example
 
 # Python
 __pycache__/
@@ -22,6 +23,7 @@ build/
 # Node / Web
 node_modules/
 dist/
+!cli/dist/
 .next/
 .vercel/
 

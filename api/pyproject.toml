@@ -12,6 +12,7 @@ dependencies = [
     "alembic",
     "asyncpg",
     "bcrypt",
+    "PyJWT>=2.0",
     "python-dotenv",
     "httpx",
     "supabase",

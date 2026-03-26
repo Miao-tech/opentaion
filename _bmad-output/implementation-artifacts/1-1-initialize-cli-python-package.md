@@ -1,6 +1,6 @@
 # Story 1.1: Initialize CLI Python Package
 
-Status: review
+Status: done
 
 ## Story
 

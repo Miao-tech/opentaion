@@ -1,6 +1,6 @@
 # Story 1.4: Supabase Schema Migrations (Database Foundation)
 
-Status: review
+Status: done
 
 ## Story
 

@@ -1,6 +1,6 @@
 # Story 4.1: `GET /api/usage` Endpoint
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -58,26 +58,26 @@ Then tests pass for: populated 30-day window, empty result, JWT auth required (4
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Write tests FIRST in `tests/test_usage.py` — confirm they fail (TDD)
-  - [ ] Tests for AC1–AC5 all fail before implementation
+- [x] Task 1: Write tests FIRST in `tests/test_usage.py` — confirm they fail (TDD)
+  - [x] Tests for AC1–AC5 all fail before implementation
 
-- [ ] Task 2: Add `UsageRecord` and `UsageResponse` Pydantic schemas to `schemas.py` (AC: 1, 3, 4)
-  - [ ] `UsageRecord` with `date: str`, `model: str`, `prompt_tokens: int`, `completion_tokens: int`, `cost_usd: str`
-  - [ ] `UsageResponse` with `records: list[UsageRecord]`, `total_cost_usd: str`, `period_days: int = 30`
-  - [ ] `UsageRecord.from_log(log: UsageLog) -> UsageRecord` classmethod for clean conversion
+- [x] Task 2: Add `UsageRecord` and `UsageResponse` Pydantic schemas to `schemas.py` (AC: 1, 3, 4)
+  - [x] `UsageRecord` with `date: str`, `model: str`, `prompt_tokens: int`, `completion_tokens: int`, `cost_usd: str`
+  - [x] `UsageResponse` with `records: list[UsageRecord]`, `total_cost_usd: str`, `period_days: int = 30`
+  - [x] `UsageRecord.from_log(log: UsageLog) -> UsageRecord` classmethod for clean conversion
 
-- [ ] Task 3: Create `api/src/opentaion_api/routers/usage.py` (AC: 1–5)
-  - [ ] `GET /usage` route with `Depends(verify_supabase_jwt)` and `Depends(get_db)`
-  - [ ] Query `usage_logs` for last 30 days filtered by `user_id`
-  - [ ] Build and return `UsageResponse`
+- [x] Task 3: Create `api/src/opentaion_api/routers/usage.py` (AC: 1–5)
+  - [x] `GET /usage` route with `Depends(verify_supabase_jwt)` and `Depends(get_db)`
+  - [x] Query `usage_logs` for last 30 days filtered by `user_id`
+  - [x] Build and return `UsageResponse`
 
-- [ ] Task 4: Register usage router in `main.py` (AC: 1)
-  - [ ] `from opentaion_api.routers import usage`
-  - [ ] `app.include_router(usage.router, prefix="/api")`
+- [x] Task 4: Register usage router in `main.py` (AC: 1)
+  - [x] `from opentaion_api.routers import usage`
+  - [x] `app.include_router(usage.router, prefix="/api")`
 
-- [ ] Task 5: Run tests green (AC: 6)
-  - [ ] `uv run pytest tests/test_usage.py -v`
-  - [ ] `uv run pytest` — full suite passes
+- [x] Task 5: Run tests green (AC: 6)
+  - [x] `uv run pytest tests/test_usage.py -v`
+  - [x] `uv run pytest` — full suite passes
 
 ## Dev Notes
 
@@ -472,16 +472,24 @@ tests/
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
-_none_
+- Story spec imports from `opentaion_api.dependencies.auth` and `opentaion_api.dependencies.db` — actual modules are `opentaion_api.deps` and `opentaion_api.database`; adapted accordingly
+- Story spec uses `@pytest.mark.anyio` — project uses `asyncio_mode = "auto"`; used plain `async def` tests
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- TDD red: all 10 tests failed (404 from missing route)
+- Added `UsageRecord` and `UsageResponse` schemas to `schemas.py`; `TYPE_CHECKING` guard avoids circular import
+- `routers/usage.py` created with 30-day query + Decimal sum
+- `main.py` updated to register usage router with `/api` prefix
+- 10/10 usage tests pass; 67/67 full suite passes
 
 ### File List
 
-_to be filled by dev agent_
+- `api/src/opentaion_api/schemas.py` — MODIFIED: added UsageRecord, UsageResponse schemas
+- `api/src/opentaion_api/routers/usage.py` — NEW: GET /api/usage endpoint
+- `api/src/opentaion_api/main.py` — MODIFIED: registered usage router
+- `api/tests/test_usage.py` — NEW: 10 tests for usage endpoint
