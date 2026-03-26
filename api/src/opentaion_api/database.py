@@ -16,7 +16,11 @@ DATABASE_URL = (
     else _raw_url
 )
 
-engine = create_async_engine(DATABASE_URL, echo=False)
+engine = create_async_engine(
+    DATABASE_URL,
+    connect_args={"ssl": "require", "timeout": 10},
+    echo=False,
+)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 
