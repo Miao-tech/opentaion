@@ -18,7 +18,7 @@ DATABASE_URL = (
 
 engine = create_async_engine(
     DATABASE_URL,
-    connect_args={"ssl": "require", "timeout": 10},
+    connect_args={"ssl": "require", "timeout": 10, "statement_cache_size": 0},
     echo=False,
 )
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
