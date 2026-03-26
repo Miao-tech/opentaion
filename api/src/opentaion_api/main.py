@@ -1,9 +1,11 @@
 # src/opentaion_api/main.py
 import os
+import uuid
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from opentaion_api.deps import verify_api_key
 from opentaion_api.routers import keys, proxy, usage
 
 app = FastAPI(title="opentaion-api", version="0.1.0")
@@ -39,6 +41,13 @@ async def debug_test_post() -> dict:
 @app.post("/v1/debug/test-post")
 async def debug_test_post_v1() -> dict:
     return {"status": "ok", "method": "POST", "path": "/v1/"}
+
+
+@app.post("/debug/test-api-key-dep")
+async def debug_test_api_key_dep(
+    user_id: uuid.UUID = Depends(verify_api_key),
+) -> dict:
+    return {"status": "ok", "user_id": str(user_id)}
 
 
 @app.get("/debug/openrouter")
