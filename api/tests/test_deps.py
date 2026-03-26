@@ -8,18 +8,18 @@ from unittest.mock import AsyncMock, MagicMock
 import bcrypt as _bcrypt
 import jwt as pyjwt
 import pytest
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import ec
 from fastapi import HTTPException
-from jwt.algorithms import RSAAlgorithm
+from jwt.algorithms import ECAlgorithm
 
 from opentaion_api.deps import verify_api_key, verify_supabase_jwt
 
-# Generate a test RSA key pair once for the entire test module
-_TEST_PRIVATE_KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-_TEST_PUBLIC_KEY_JWK = RSAAlgorithm.to_jwk(_TEST_PRIVATE_KEY.public_key())
+# Generate a test EC key pair once for the entire test module (ES256 = P-256)
+_TEST_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
+_TEST_PUBLIC_KEY_JWK = ECAlgorithm.to_jwk(_TEST_PRIVATE_KEY.public_key())
 
 # A second key pair for "wrong key" tests
-_OTHER_PRIVATE_KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+_OTHER_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
 
 
 # ── Test helpers ─────────────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ def make_test_jwt(user_id: str, private_key=None, expired: bool = False) -> str:
             "iat": now,
         },
         private_key,
-        algorithm="RS256",
+        algorithm="ES256",
     )
 
 

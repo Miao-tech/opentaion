@@ -69,12 +69,12 @@ async def verify_supabase_jwt(
         raise HTTPException(status_code=500, detail="Server configuration error")
 
     try:
-        from jwt.algorithms import RSAAlgorithm
-        public_key = RSAAlgorithm.from_jwk(jwk_json)
+        from jwt.algorithms import ECAlgorithm
+        public_key = ECAlgorithm.from_jwk(jwk_json)
         payload = jwt.decode(
             token,
             public_key,
-            algorithms=["RS256"],
+            algorithms=["ES256"],
             audience="authenticated",
         )
         return uuid.UUID(payload["sub"])
