@@ -38,6 +38,11 @@ async def debug_test_post() -> dict:
     return {"status": "ok", "method": "POST"}
 
 
+@app.post("/v1/chat/completions/debug")
+async def debug_v1_chat_completions() -> dict:
+    return {"status": "ok", "path": "/v1/chat/completions/debug"}
+
+
 @app.post("/v1/debug/test-post")
 async def debug_test_post_v1() -> dict:
     return {"status": "ok", "method": "POST", "path": "/v1/"}
