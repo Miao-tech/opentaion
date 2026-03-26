@@ -1,6 +1,6 @@
 # Story 2.2: API Key CRUD Endpoints
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -37,25 +37,25 @@ Then tests pass for all three endpoints: happy path, unauthorized, not found
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create Pydantic schemas for request/response (AC: 1, 2)
-  - [ ] Create `src/opentaion_api/schemas.py` with `ApiKeyCreateResponse` and `ApiKeyListItem` (see Dev Notes)
-  - [ ] Use `datetime` + ISO 8601 serialization via Pydantic's `model_config`
+- [x] Task 1: Create Pydantic schemas for request/response (AC: 1, 2)
+  - [x] Create `src/opentaion_api/schemas.py` with `ApiKeyCreateResponse` and `ApiKeyListItem` (see Dev Notes)
+  - [x] Use `datetime` + ISO 8601 serialization via Pydantic's `model_config`
 
-- [ ] Task 2: Write tests FIRST in `tests/test_keys.py` — confirm they fail (AC: 5, TDD)
-  - [ ] Create test file with `TestClient`, dependency overrides for `verify_supabase_jwt` and `get_db`
-  - [ ] Run `uv run pytest tests/test_keys.py` — all tests must FAIL (router doesn't exist yet)
+- [x] Task 2: Write tests FIRST in `tests/test_keys.py` — confirm they fail (AC: 5, TDD)
+  - [x] Create test file with `TestClient`, dependency overrides for `verify_supabase_jwt` and `get_db`
+  - [x] Run `uv run pytest tests/test_keys.py` — all tests must FAIL (router doesn't exist yet)
 
-- [ ] Task 3: Create `src/opentaion_api/routers/keys.py` with all three endpoints (AC: 1, 2, 3, 4)
-  - [ ] `POST /api/keys` — generate key, hash at cost 12, store, return plaintext once
-  - [ ] `GET /api/keys` — query active keys for user, return list (no key_hash)
-  - [ ] `DELETE /api/keys/{key_id}` — set `revoked_at`, return 204; 404 if not found or wrong owner
+- [x] Task 3: Create `src/opentaion_api/routers/keys.py` with all three endpoints (AC: 1, 2, 3, 4)
+  - [x] `POST /api/keys` — generate key, hash at cost 12, store, return plaintext once
+  - [x] `GET /api/keys` — query active keys for user, return list (no key_hash)
+  - [x] `DELETE /api/keys/{key_id}` — set `revoked_at`, return 204; 404 if not found or wrong owner
 
-- [ ] Task 4: Register the router in `src/opentaion_api/main.py` (AC: 1, 2, 3)
-  - [ ] `app.include_router(keys_router, prefix="/api")` in `main.py`
+- [x] Task 4: Register the router in `src/opentaion_api/main.py` (AC: 1, 2, 3)
+  - [x] `app.include_router(keys_router, prefix="/api")` in `main.py`
 
-- [ ] Task 5: Run tests green (AC: 5)
-  - [ ] `uv run pytest tests/test_keys.py -v` — all tests pass
-  - [ ] `uv run pytest` — full suite (health + deps + keys) all pass
+- [x] Task 5: Run tests green (AC: 5)
+  - [x] `uv run pytest tests/test_keys.py -v` — all tests pass
+  - [x] `uv run pytest` — full suite (health + deps + keys) all pass
 
 ## Dev Notes
 
@@ -479,16 +479,28 @@ api/
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
-_none_
+- `Header(...)` (required) causes FastAPI to return 422 before calling the dependency when the header is absent. Tests expect 401. Fixed by making authorization `str | None = Header(default=None)` and checking for None in the function body. This also fixed the same issue retroactively in `verify_api_key`. All existing test_deps.py tests unaffected (they always supply the header explicitly).
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- Created `schemas.py` with `ApiKeyCreateResponse` (includes plaintext key) and `ApiKeyListItem` (no key/hash)
+- Created `routers/keys.py` with POST/GET/DELETE endpoints — bcrypt cost 12 for generation, `revoked_at` pattern for revocation, 404 for cross-user key access
+- Updated `main.py` to include keys router under `/api` prefix
+- Updated `deps.py` to use optional Authorization header (`str | None`) in both auth functions — returns 401 for absent header instead of FastAPI's 422
+- 8 new tests in `test_keys.py` — all pass; full suite 23/23
 
 ### File List
 
-_to be filled by dev agent_
+- `api/src/opentaion_api/schemas.py` — NEW: ApiKeyCreateResponse, ApiKeyListItem
+- `api/src/opentaion_api/routers/keys.py` — NEW: POST/GET/DELETE /api/keys
+- `api/src/opentaion_api/main.py` — MODIFIED: added keys router include
+- `api/src/opentaion_api/deps.py` — MODIFIED: optional Authorization header in both deps
+- `api/tests/test_keys.py` — NEW: 8 endpoint tests
+
+## Change Log
+
+- 2026-03-25: Story 2.2 implemented — API key CRUD endpoints; schemas added; deps.py updated to return 401 (not 422) for missing Authorization header; 8 tests added; all 23 tests pass

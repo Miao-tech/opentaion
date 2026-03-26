@@ -1,6 +1,6 @@
 # Story 2.5: Web API Keys View — Generate, List, and Revoke
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -51,48 +51,48 @@ Then TypeScript compilation exits 0
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add `VITE_API_BASE_URL` environment variable (AC: 7)
-  - [ ] Add to `web/.env.local`: `VITE_API_BASE_URL=https://your-api.up.railway.app`
-  - [ ] Add to `web/.env.local.example`
-  - [ ] Add to Vercel environment variables after this story is deployed
+- [x] Task 1: Add `VITE_API_BASE_URL` environment variable (AC: 7)
+  - [x] Add to `web/.env.local`: `VITE_API_BASE_URL=https://your-api.up.railway.app`
+  - [x] Add to `web/.env.local.example`
+  - [ ] Add to Vercel environment variables after this story is deployed (manual)
 
-- [ ] Task 2: Create API client module `src/lib/api.ts` (AC: 1, 3, 5)
-  - [ ] Define TypeScript types for API responses (see Dev Notes)
-  - [ ] Implement `generateKey()`, `listKeys()`, `revokeKey(id)` using `fetch` + Supabase JWT
-  - [ ] Implement `getAuthHeaders()` helper to retrieve the Supabase access token
+- [x] Task 2: Create API client module `src/lib/api.ts` (AC: 1, 3, 5)
+  - [x] Define TypeScript types for API responses (see Dev Notes)
+  - [x] Implement `generateKey()`, `listKeys()`, `revokeKey(id)` using `fetch` + Supabase JWT
+  - [x] Implement `getAuthHeaders()` helper to retrieve the Supabase access token
 
-- [ ] Task 3: Create `<GenerateKeyButton>` component (AC: 3, UX-DR7)
-  - [ ] Loading state: "Generating..." + `opacity-75 cursor-not-allowed`
-  - [ ] Disabled during in-flight request
-  - [ ] `onKeyGenerated` callback prop with the API response
+- [x] Task 3: Create `<GenerateKeyButton>` component (AC: 3, UX-DR7)
+  - [x] Loading state: "Generating..." + `opacity-75 cursor-not-allowed`
+  - [x] Disabled during in-flight request
+  - [x] `onKeyGenerated` callback prop with the API response
 
-- [ ] Task 4: Create `<NewKeyBanner>` component (AC: 3, 4, UX-DR6)
-  - [ ] `role="alert"` — screen readers announce appearance
-  - [ ] "Copy this key now — it won't be shown again." instruction
-  - [ ] Copy button: `aria-label="Copy API key to clipboard"`, 2-second "Copied ✓" feedback
-  - [ ] `shadow-sm` visual prominence
+- [x] Task 4: Create `<NewKeyBanner>` component (AC: 3, 4, UX-DR6)
+  - [x] `role="alert"` — screen readers announce appearance
+  - [x] "Copy this key now — it won't be shown again." instruction
+  - [x] Copy button: `aria-label="Copy API key to clipboard"`, 2-second "Copied ✓" feedback
+  - [x] `shadow-sm` visual prominence
 
-- [ ] Task 5: Create `<ApiKeyList>` component (AC: 1, 2, 5, 6, UX-DR5)
-  - [ ] Table structure with `<th scope="col">` headers
-  - [ ] Key preview: `font-mono text-xs text-gray-600`
-  - [ ] Revoke button: `text-sm text-red-600 hover:text-red-700` (no background, no confirm modal)
-  - [ ] Revoking in-flight per-row state
-  - [ ] Empty state message
+- [x] Task 5: Create `<ApiKeyList>` component (AC: 1, 2, 5, 6, UX-DR5)
+  - [x] Table structure with `<th scope="col">` headers
+  - [x] Key preview: `font-mono text-xs text-gray-600`
+  - [x] Revoke button: `text-sm text-red-600 hover:text-red-700` (no background, no confirm modal)
+  - [x] Revoking in-flight per-row state
+  - [x] Empty state message
 
-- [ ] Task 6: Create `<ApiKeysView>` container component (AC: 1–6)
-  - [ ] `useEffect` on mount: fetch key list via `listKeys()`
-  - [ ] State: `keys`, `newKey` (for banner), `revokingId`
-  - [ ] Compose `<GenerateKeyButton>`, `<NewKeyBanner>`, `<ApiKeyList>`
+- [x] Task 6: Create `<ApiKeysView>` container component (AC: 1–6)
+  - [x] `useEffect` on mount: fetch key list via `listKeys()`
+  - [x] State: `keys`, `newKey` (for banner), `revokingId`
+  - [x] Compose `<GenerateKeyButton>`, `<NewKeyBanner>`, `<ApiKeyList>`
 
-- [ ] Task 7: Wire `<ApiKeysView>` into `App.tsx` (AC: 1)
-  - [ ] Replace `<div>API Keys</div>` stub with `<ApiKeysView />`
+- [x] Task 7: Wire `<ApiKeysView>` into `App.tsx` (AC: 1)
+  - [x] Replace `<div>API Keys</div>` stub with `<ApiKeysView />`
 
-- [ ] Task 8: Verify locally (AC: 1–8)
-  - [ ] `npm run dev` → navigate to API Keys → confirm list loads
-  - [ ] Generate a key → confirm banner appears with full key
-  - [ ] Copy key → confirm "Copied ✓" feedback
-  - [ ] Revoke a key → confirm it disappears from the list
-  - [ ] `npm run build` → exits 0
+- [x] Task 8: Verify locally (AC: 1–8)
+  - [ ] `npm run dev` → navigate to API Keys → confirm list loads (manual)
+  - [ ] Generate a key → confirm banner appears with full key (manual)
+  - [ ] Copy key → confirm "Copied ✓" feedback (manual)
+  - [ ] Revoke a key → confirm it disappears from the list (manual)
+  - [x] `npm run build` → exits 0
 
 ## Dev Notes
 
@@ -534,7 +534,7 @@ web/src/
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
@@ -542,8 +542,28 @@ _none_
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- Added `VITE_API_BASE_URL` to `.env.local` and `.env.local.example`
+- Created `src/lib/api.ts` — `authHeaders()` helper + `generateKey()`, `listKeys()`, `revokeKey()` using native `fetch`
+- Created `GenerateKeyButton.tsx` — loading state with `opacity-75 cursor-not-allowed`, `onKeyGenerated` callback
+- Created `NewKeyBanner.tsx` — `role="alert"`, monospace key display, copy button with 2-second "Copied ✓" feedback
+- Created `ApiKeyList.tsx` — table with `<th scope="col">`, `font-mono text-xs text-gray-600` key preview, per-row revoke loading state, empty state message
+- Created `ApiKeysView.tsx` — orchestrates all components, optimistic list update after generation, filters revoked keys client-side
+- Updated `App.tsx` — replaces `<div>API Keys</div>` with `<ApiKeysView />`
+- Updated `api/src/opentaion_api/main.py` — added CORS middleware, `CORS_ORIGINS` env var (comma-delimited), defaults to `http://localhost:5173`
+- `npm run build` exits 0 — 79 modules; API 23/23 tests pass
 
 ### File List
 
-_to be filled by dev agent_
+- `web/.env.local` — MODIFIED: added VITE_API_BASE_URL
+- `web/.env.local.example` — MODIFIED: added VITE_API_BASE_URL
+- `web/src/lib/api.ts` — NEW: fetch API client + TypeScript types
+- `web/src/components/GenerateKeyButton.tsx` — NEW
+- `web/src/components/NewKeyBanner.tsx` — NEW
+- `web/src/components/ApiKeyList.tsx` — NEW
+- `web/src/components/ApiKeysView.tsx` — NEW
+- `web/src/App.tsx` — MODIFIED: uses ApiKeysView
+- `api/src/opentaion_api/main.py` — MODIFIED: CORS middleware
+
+## Change Log
+
+- 2026-03-25: Story 2.5 implemented — API Keys view with generate/list/revoke; CORS middleware added to API; VITE_API_BASE_URL added to env; npm run build exits 0; 23/23 API tests pass

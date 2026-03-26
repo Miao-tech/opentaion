@@ -68,6 +68,9 @@ def upgrade() -> None:
         USING (auth.uid() = user_id)
         WITH CHECK (auth.uid() = user_id)
     """)
+    # Column-level restriction: revoke broad UPDATE, grant only revoked_at
+    op.execute("REVOKE UPDATE ON public.api_keys FROM authenticated")
+    op.execute("GRANT UPDATE (revoked_at) ON public.api_keys TO authenticated")
 
     # usage_logs policies — web users can read; INSERT is service-role-only (no INSERT policy)
     op.execute("""

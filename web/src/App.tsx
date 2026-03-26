@@ -1,15 +1,17 @@
 // src/App.tsx
 import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import type { User } from '@supabase/supabase-js'
+import { supabase } from './lib/supabase'
+import { LoginForm } from './components/LoginForm'
+import { Sidebar } from './components/Sidebar'
+import { ApiKeysView } from './components/ApiKeysView'
+import Dashboard from './Dashboard'
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL as string,
-  import.meta.env.VITE_SUPABASE_ANON_KEY as string
-)
+type View = 'dashboard' | 'keys'
 
 function App() {
   const [user, setUser] = useState<User | null>(null)
+  const [activeView, setActiveView] = useState<View>('dashboard')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -19,13 +21,29 @@ function App() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) setActiveView('dashboard')
       setUser(session?.user ?? null)
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
-  return user ? <div>Dashboard</div> : <div>Login</div>
+  if (!user) {
+    return <LoginForm />
+  }
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar activeView={activeView} onViewChange={setActiveView} />
+      <main className="flex-1 overflow-auto p-6">
+        {activeView === 'dashboard' ? (
+          <Dashboard />
+        ) : (
+          <ApiKeysView />
+        )}
+      </main>
+    </div>
+  )
 }
 
 export default App

@@ -1,6 +1,6 @@
 # Story 2.6: CLI `opentaion login` Command
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -37,26 +37,26 @@ Then tests pass for: successful login (mocked health check), unreachable proxy (
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create `src/opentaion/core/config.py` for config read/write utilities (used by future commands)
-  - [ ] `CONFIG_PATH` constant: `Path.home() / ".opentaion" / "config.json"`
-  - [ ] `write_config(proxy_url, api_key)` — creates dir, writes JSON
-  - [ ] `read_config()` — reads JSON, returns dict or None if missing
+- [x] Task 1: Create `src/opentaion/core/config.py` for config read/write utilities (used by future commands)
+  - [x] `CONFIG_PATH` constant: `Path.home() / ".opentaion" / "config.json"`
+  - [x] `write_config(proxy_url, api_key)` — creates dir, writes JSON
+  - [x] `read_config()` — reads JSON, returns dict or None if missing
 
-- [ ] Task 2: Write tests FIRST in `tests/test_login.py` — confirm they fail (TDD)
-  - [ ] Tests for successful login, unreachable proxy, overwrite — all fail before implementation
-  - [ ] Use `CliRunner` + `monkeypatch` + `httpx.AsyncClient` mock
+- [x] Task 2: Write tests FIRST in `tests/test_login.py` — confirm they fail (TDD)
+  - [x] Tests for successful login, unreachable proxy, overwrite — all fail before implementation
+  - [x] Use `CliRunner` + `monkeypatch` + `httpx.AsyncClient` mock
 
-- [ ] Task 3: Create `src/opentaion/commands/login.py` (AC: 1, 2, 3, 4)
-  - [ ] `@click.command()` function `login` that calls `asyncio.run(_login())`
-  - [ ] `_login()` async function: prompts, health check, config write, output
+- [x] Task 3: Create `src/opentaion/commands/login.py` (AC: 1, 2, 3, 4)
+  - [x] `@click.command()` function `login` that calls `asyncio.run(_login())`
+  - [x] `_login()` async function: prompts, health check, config write, output
 
-- [ ] Task 4: Register `login` command in `__main__.py` (AC: 1)
-  - [ ] Import `login` from `opentaion.commands.login`
-  - [ ] `main.add_command(login)`
+- [x] Task 4: Register `login` command in `__main__.py` (AC: 1)
+  - [x] Import `login` from `opentaion.commands.login`
+  - [x] `main.add_command(login)`
 
-- [ ] Task 5: Run tests green (AC: 5)
-  - [ ] `uv run pytest tests/test_login.py -v`
-  - [ ] `uv run pytest` — full suite passes (test_cli.py + test_login.py)
+- [x] Task 5: Run tests green (AC: 5)
+  - [x] `uv run pytest tests/test_login.py -v`
+  - [x] `uv run pytest` — full suite passes (test_cli.py + test_login.py)
 
 ## Dev Notes
 
@@ -400,16 +400,28 @@ tests/
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
-_none_
+- `CliRunner(mix_stderr=False)` is not supported in Click 8.3.1 (the parameter was removed). Updated test file to use `CliRunner()` without the argument. Tests still correctly validate stdout/stderr separation because `err_console` (Rich stderr) output doesn't appear in `result.output`.
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- Created `src/opentaion/core/config.py` — `CONFIG_PATH`, `Config` TypedDict, `write_config()` (strips trailing slash, creates dirs), `read_config()` (returns None if missing)
+- Created `src/opentaion/commands/login.py` — prompts for URL + API key (hidden), health-checks `{url}/health` with 5s timeout, writes config on success, exits 1 with stderr error on failure
+- Updated `__main__.py` — imports `login` and adds with `main.add_command(login)`
+- Created `tests/test_login.py` — 5 tests: success writes config, success output contains ✓, overwrite, unreachable exits 1, unreachable does not write config
+- Fixed: `CliRunner(mix_stderr=False)` → `CliRunner()` for Click 8.3.1 compatibility
+- 32/32 tests pass; 5 new + 27 pre-existing, zero regressions
 
 ### File List
 
-_to be filled by dev agent_
+- `cli/src/opentaion/core/config.py` — NEW: CONFIG_PATH, write_config(), read_config()
+- `cli/src/opentaion/commands/login.py` — NEW: opentaion login command
+- `cli/src/opentaion/__main__.py` — MODIFIED: added login command
+- `cli/tests/test_login.py` — NEW: 5 login tests
+
+## Change Log
+
+- 2026-03-25: Story 2.6 implemented — opentaion login command; core/config.py; 5 tests; 32/32 suite passes. Epic 2 complete.

@@ -76,8 +76,8 @@ class Opentaion < Formula
   end
 
   resource "sniffio" do
-    url "https://files.pythonhosted.org/packages/f9/7c/d9f5b3e36b7af0f0552d74e9fcf7bd1be19c1b41b5c6e78c1e2f6ded4a4a/sniffio-1.3.1.tar.gz"
-    sha256 "f4324edc670a0f49750a81b895f35c3a579986dc8ee4b3eeda747e20a8f3cb8a"
+    url "https://files.pythonhosted.org/packages/a2/87/a6771e1546d97e7e041b6ae58d80074f81b7d5121207425c964ddf5cfdbd/sniffio-1.3.1.tar.gz"
+    sha256 "f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc"
   end
 
   resource "tiktoken" do
