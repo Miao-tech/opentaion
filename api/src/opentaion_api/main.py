@@ -31,6 +31,26 @@ async def health() -> dict:
     return {"status": "ok"}
 
 
+@app.get("/debug/openrouter")
+async def debug_openrouter() -> dict:
+    """Temporary: test OpenRouter connectivity."""
+    import httpx
+    key = os.environ.get("OPENROUTER_API_KEY", "")
+    if not key:
+        return {"error": "OPENROUTER_API_KEY not set"}
+    try:
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+                json={"model": "meta-llama/llama-3.3-70b-instruct:free", "messages": [{"role": "user", "content": "hi"}]},
+                timeout=30.0,
+            )
+        return {"status_code": r.status_code, "body": r.text[:300]}
+    except Exception as e:
+        return {"error": type(e).__name__, "detail": str(e)}
+
+
 @app.get("/debug/verify-key")
 async def debug_verify_key(key: str) -> dict:
     """Temporary: test API key verification against the DB."""
