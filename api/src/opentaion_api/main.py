@@ -31,3 +31,17 @@ async def health() -> dict:
     return {"status": "ok"}
 
 
+@app.get("/debug/verify-key")
+async def debug_verify_key(key: str) -> dict:
+    """Temporary: test API key verification against the DB."""
+    try:
+        from fastapi import HTTPException
+        from opentaion_api.database import AsyncSessionLocal
+        from opentaion_api.deps import verify_api_key
+        async with AsyncSessionLocal() as db:
+            result = await verify_api_key(authorization=f"Bearer {key}", db=db)
+        return {"status": "ok", "user_id": str(result)}
+    except Exception as e:
+        return {"error": type(e).__name__, "detail": str(e)}
+
+
