@@ -233,7 +233,7 @@ async def _run_agent_loop(proxy_url: str, api_key: str, tier: str, prompt: str) 
     total_prompt_tokens = 0
     total_completion_tokens = 0
 
-    async with httpx.AsyncClient(timeout=PROXY_TIMEOUT) as client:
+    async with httpx.AsyncClient(timeout=PROXY_TIMEOUT, trust_env=False) as client:
         for iteration in range(MAX_ITERATIONS):
             try:
                 if iteration == 0:

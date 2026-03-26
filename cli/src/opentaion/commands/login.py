@@ -33,7 +33,7 @@ async def _login() -> None:
 
     # Validate connectivity against the health endpoint
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(trust_env=False) as client:
             response = await client.get(
                 f"{proxy_url.rstrip('/')}/health",
                 timeout=5.0,
