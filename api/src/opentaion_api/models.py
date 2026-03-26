@@ -21,7 +21,6 @@ class ApiKey(Base):
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
         sa.UUID(as_uuid=True),
-        sa.ForeignKey("auth.users.id", ondelete="CASCADE"),
         nullable=False,
     )
     key_hash: Mapped[str] = mapped_column(Text, nullable=False)
@@ -48,7 +47,6 @@ class UsageLog(Base):
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
         sa.UUID(as_uuid=True),
-        sa.ForeignKey("auth.users.id", ondelete="CASCADE"),
         nullable=False,
     )
     model: Mapped[str] = mapped_column(Text, nullable=False)
