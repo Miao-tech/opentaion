@@ -1,6 +1,6 @@
 # Story 3.4: CLI `/effort` Command — Multi-Turn Agent Loop with Tool Execution
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -64,24 +64,24 @@ Then tests pass for: correct model mapped per tier, single-iteration task comple
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Write tests FIRST in `tests/test_effort.py` — confirm they fail (TDD)
-  - [ ] Tests for AC1–AC9 all fail before implementation
+- [x] Task 1: Write tests FIRST in `tests/test_effort.py` — confirm they fail (TDD)
+  - [x] Tests for AC1–AC9 all fail before implementation
 
-- [ ] Task 2: Create `cli/src/opentaion/commands/effort.py` (AC: 1–8)
-  - [ ] `EFFORT_MODELS` dict (CLI-local copy of API's mapping)
-  - [ ] `CLI_MODEL_PRICING` dict and `_compute_cost()` for terminal display
-  - [ ] `TOOLS` list with three tool definitions (OpenRouter tool calling format)
-  - [ ] Tool execution functions: `_execute_read_file`, `_execute_write_file`, `_execute_run_command`
-  - [ ] `_run_agent_loop()` async function — multi-turn loop with token accumulation
-  - [ ] `effort` Click command with smart tier/prompt argument parsing
+- [x] Task 2: Create `cli/src/opentaion/commands/effort.py` (AC: 1–8)
+  - [x] `EFFORT_MODELS` dict (CLI-local copy of API's mapping)
+  - [x] `CLI_MODEL_PRICING` dict and `_compute_cost()` for terminal display
+  - [x] `TOOLS` list with three tool definitions (OpenRouter tool calling format)
+  - [x] Tool execution functions: `_execute_read_file`, `_execute_write_file`, `_execute_run_command`
+  - [x] `_run_agent_loop()` async function — multi-turn loop with token accumulation
+  - [x] `effort` Click command with smart tier/prompt argument parsing
 
-- [ ] Task 3: Register `effort` command in `__main__.py` (AC: 1)
-  - [ ] `from opentaion.commands.effort import effort`
-  - [ ] `main.add_command(effort)`
+- [x] Task 3: Register `effort` command in `__main__.py` (AC: 1)
+  - [x] `from opentaion.commands.effort import effort`
+  - [x] `main.add_command(effort)`
 
-- [ ] Task 4: Run tests green (AC: 9)
-  - [ ] `uv run pytest tests/test_effort.py -v`
-  - [ ] `uv run pytest` — full suite passes
+- [x] Task 4: Run tests green (AC: 9)
+  - [x] `uv run pytest tests/test_effort.py -v`
+  - [x] `uv run pytest` — full suite passes
 
 ## Dev Notes
 
@@ -862,16 +862,22 @@ cli/
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
-_none_
+- Story spec uses `CliRunner(mix_stderr=False)` but Click 8.3.1 doesn't support `mix_stderr` param — used `CliRunner()` throughout (consistent with test_login.py)
+- `test_effort_missing_config_mentions_login` checks `result.output` (stdout) not stderr — `err_console` writes to stderr which CliRunner merges with stdout in default mode
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- TDD red: all 15 tests failed (import error from missing module)
+- `commands/effort.py` created with full agent loop, tool dispatch, token accumulation
+- `__main__.py` updated to register effort command
+- 15/15 effort tests pass; 47/47 full suite passes
 
 ### File List
 
-_to be filled by dev agent_
+- `cli/src/opentaion/commands/effort.py` — NEW: effort command + agent loop + tools
+- `cli/src/opentaion/__main__.py` — MODIFIED: added effort command registration
+- `cli/tests/test_effort.py` — NEW: 15 tests for effort command

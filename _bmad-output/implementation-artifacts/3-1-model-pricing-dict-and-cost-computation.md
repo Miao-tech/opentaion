@@ -1,6 +1,6 @@
 # Story 3.1: Model Pricing Dict and Cost Computation
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -372,7 +372,7 @@ tests/
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
@@ -380,8 +380,12 @@ _none_
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- TDD red phase: all 16 tests failed on missing module (import error) — confirmed before implementation
+- `services/` directory and `__init__.py` created; `cost.py` implemented per spec
+- All 16 cost tests pass; full suite (39 tests) passes
 
 ### File List
 
-_to be filled by dev agent_
+- `api/src/opentaion_api/services/__init__.py` — NEW (empty)
+- `api/src/opentaion_api/services/cost.py` — NEW: MODEL_PRICING, EFFORT_MODELS, compute_cost()
+- `api/tests/test_cost.py` — NEW: 16 unit tests

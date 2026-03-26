@@ -1,6 +1,6 @@
 # Story 3.3: Async Usage Logging
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -37,28 +37,28 @@ Then tests pass for: background task enqueued on success, write with correct fie
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Write tests FIRST — confirm they fail (TDD)
-  - [ ] Add new section to `tests/test_proxy.py` for background task integration tests
-  - [ ] Create `tests/test_usage_logging.py` for `write_usage_log` unit tests
-  - [ ] All tests fail before modifications to `proxy.py`
+- [x] Task 1: Write tests FIRST — confirm they fail (TDD)
+  - [x] Add new section to `tests/test_proxy.py` for background task integration tests
+  - [x] Create `tests/test_usage_logging.py` for `write_usage_log` unit tests
+  - [x] All tests fail before modifications to `proxy.py`
 
-- [ ] Task 2: Add `write_usage_log` function to `routers/proxy.py` (AC: 2, 3, 4)
-  - [ ] New `async def write_usage_log(db, user_id, model, prompt_tokens, completion_tokens)` in `proxy.py`
-  - [ ] Uses `compute_cost()` from `services/cost.py`
-  - [ ] Uses `UsageLog` ORM model from `models.py`
-  - [ ] Wraps entire body in `try/except Exception` — prints warning on failure, never re-raises
+- [x] Task 2: Add `write_usage_log` function to `routers/proxy.py` (AC: 2, 3, 4)
+  - [x] New `async def write_usage_log(db, user_id, model, prompt_tokens, completion_tokens)` in `proxy.py`
+  - [x] Uses `compute_cost()` from `services/cost.py`
+  - [x] Uses `UsageLog` ORM model from `models.py`
+  - [x] Wraps entire body in `try/except Exception` — prints warning on failure, never re-raises
 
-- [ ] Task 3: Modify `proxy_chat_completions` in `routers/proxy.py` (AC: 1, 2)
-  - [ ] Add `background_tasks: BackgroundTasks` parameter (no `Depends` — FastAPI injects it automatically)
-  - [ ] Add `db: AsyncSession = Depends(get_db)` parameter
-  - [ ] After success check, parse `openrouter_response.json()` for `model` + `usage` fields
-  - [ ] Wrap parse in try/except — default to `"unknown"` / `0` if response malformed
-  - [ ] Call `background_tasks.add_task(write_usage_log, db, user_id, model, prompt_tokens, completion_tokens)`
-  - [ ] Background task call is BEFORE `return Response(...)` but AFTER the error check
+- [x] Task 3: Modify `proxy_chat_completions` in `routers/proxy.py` (AC: 1, 2)
+  - [x] Add `background_tasks: BackgroundTasks` parameter (no `Depends` — FastAPI injects it automatically)
+  - [x] Add `db: AsyncSession = Depends(get_db)` parameter
+  - [x] After success check, parse `openrouter_response.json()` for `model` + `usage` fields
+  - [x] Wrap parse in try/except — default to `"unknown"` / `0` if response malformed
+  - [x] Call `background_tasks.add_task(write_usage_log, db, user_id, model, prompt_tokens, completion_tokens)`
+  - [x] Background task call is BEFORE `return Response(...)` but AFTER the error check
 
-- [ ] Task 4: Run tests green (AC: 5)
-  - [ ] `uv run pytest tests/test_proxy.py tests/test_usage_logging.py -v`
-  - [ ] `uv run pytest` — full suite passes
+- [x] Task 4: Run tests green (AC: 5)
+  - [x] `uv run pytest tests/test_proxy.py tests/test_usage_logging.py -v`
+  - [x] `uv run pytest` — full suite passes
 
 ## Dev Notes
 
@@ -461,16 +461,23 @@ tests/
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
-_none_
+- Story spec references `opentaion_api.dependencies.auth` and `opentaion_api.dependencies.db` but actual code uses `opentaion_api.deps` and `opentaion_api.database` — adapted imports accordingly
+- Story spec uses `@pytest.mark.anyio` but project uses `pytest-asyncio` with `asyncio_mode = "auto"` — used plain `async def` tests (consistent with existing test files)
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- TDD red: import error on `write_usage_log` confirmed before implementation
+- `write_usage_log` added to `proxy.py` — calls `compute_cost()`, creates `UsageLog`, wraps in try/except
+- `proxy_chat_completions` updated with `BackgroundTasks` + `db` params; best-effort JSON parse for usage fields
+- 10 unit tests for `write_usage_log` + 2 integration tests in `test_proxy.py`
+- 57/57 tests pass
 
 ### File List
 
-_to be filled by dev agent_
+- `api/src/opentaion_api/routers/proxy.py` — MODIFIED: added `write_usage_log`, `BackgroundTasks`, `db` param
+- `api/tests/test_proxy.py` — MODIFIED: added 2 background task integration tests
+- `api/tests/test_usage_logging.py` — NEW: 10 unit tests for `write_usage_log`

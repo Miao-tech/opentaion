@@ -1,6 +1,6 @@
 # Story 3.2: `POST /v1/chat/completions` Transparent Proxy
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -42,30 +42,30 @@ Then tests pass for: valid key + body forwarded, invalid key rejected (401), raw
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add `httpx` to API dependencies
-  - [ ] `uv add httpx` from `api/` directory
-  - [ ] Verify `api/pyproject.toml` now lists `httpx`
+- [x] Task 1: Add `httpx` to API dependencies
+  - [x] `uv add httpx` from `api/` directory
+  - [x] Verify `api/pyproject.toml` now lists `httpx`
 
-- [ ] Task 2: Write tests FIRST in `tests/test_proxy.py` — confirm they fail (TDD)
-  - [ ] Tests for AC1–AC5 all fail before `routers/proxy.py` exists
-  - [ ] Mock `httpx.AsyncClient` as async context manager (same pattern as Story 2.6)
-  - [ ] Override `verify_api_key` dependency to bypass bcrypt in tests
+- [x] Task 2: Write tests FIRST in `tests/test_proxy.py` — confirm they fail (TDD)
+  - [x] Tests for AC1–AC5 all fail before `routers/proxy.py` exists
+  - [x] Mock `httpx.AsyncClient` as async context manager (same pattern as Story 2.6)
+  - [x] Override `verify_api_key` dependency to bypass bcrypt in tests
 
-- [ ] Task 3: Create `api/src/opentaion_api/routers/proxy.py` (AC: 1–4)
-  - [ ] `POST /v1/chat/completions` route with `Depends(verify_api_key)`
-  - [ ] Read `body = await request.body()` — raw bytes only
-  - [ ] Swap auth header using `os.environ["OPENROUTER_API_KEY"]`
-  - [ ] Forward to `https://openrouter.ai/api/v1/chat/completions`
-  - [ ] Return `Response(content=..., status_code=..., media_type=...)` on success
-  - [ ] Raise `HTTPException(502, "Proxy error: <status>")` on OpenRouter error
+- [x] Task 3: Create `api/src/opentaion_api/routers/proxy.py` (AC: 1–4)
+  - [x] `POST /v1/chat/completions` route with `Depends(verify_api_key)`
+  - [x] Read `body = await request.body()` — raw bytes only
+  - [x] Swap auth header using `os.environ["OPENROUTER_API_KEY"]`
+  - [x] Forward to `https://openrouter.ai/api/v1/chat/completions`
+  - [x] Return `Response(content=..., status_code=..., media_type=...)` on success
+  - [x] Raise `HTTPException(502, "Proxy error: <status>")` on OpenRouter error
 
-- [ ] Task 4: Register proxy router in `main.py` (AC: 1)
-  - [ ] `from opentaion_api.routers import proxy`
-  - [ ] `app.include_router(proxy.router)` (no prefix — endpoint is `/v1/chat/completions`)
+- [x] Task 4: Register proxy router in `main.py` (AC: 1)
+  - [x] `from opentaion_api.routers import proxy`
+  - [x] `app.include_router(proxy.router)` (no prefix — endpoint is `/v1/chat/completions`)
 
-- [ ] Task 5: Run tests green (AC: 6)
-  - [ ] `uv run pytest tests/test_proxy.py -v`
-  - [ ] `uv run pytest` — full suite passes (test_auth.py + test_keys.py + test_cost.py + test_proxy.py)
+- [x] Task 5: Run tests green (AC: 6)
+  - [x] `uv run pytest tests/test_proxy.py -v`
+  - [x] `uv run pytest` — full suite passes (test_auth.py + test_keys.py + test_cost.py + test_proxy.py)
 
 ## Dev Notes
 
@@ -456,16 +456,23 @@ tests/
 
 ### Agent Model Used
 
-_to be filled by dev agent_
+claude-sonnet-4-6
 
 ### Debug Log References
 
-_none_
+- `httpx` already present in `pyproject.toml` (added in earlier story) — Task 1 was a no-op
+- Story spec references `opentaion_api.dependencies.auth` but real module is `opentaion_api.deps` — adapted test imports accordingly
+- Used `asyncio_mode = "auto"` (already configured) instead of `@pytest.mark.anyio` — no conftest.py changes needed
 
 ### Completion Notes List
 
-_to be filled by dev agent_
+- TDD red phase: all 6 tests failed (404 from missing route or AttributeError from missing module)
+- `routers/proxy.py` created with raw bytes forwarding, key swap, 502 on OpenRouter errors
+- `main.py` updated to register proxy router without prefix
+- 6/6 proxy tests pass; full suite 45/45 pass
 
 ### File List
 
-_to be filled by dev agent_
+- `api/src/opentaion_api/routers/proxy.py` — NEW: POST /v1/chat/completions transparent proxy
+- `api/src/opentaion_api/main.py` — MODIFIED: added proxy router registration
+- `api/tests/test_proxy.py` — NEW: 6 proxy endpoint tests
