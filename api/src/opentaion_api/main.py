@@ -31,6 +31,16 @@ async def health() -> dict:
     return {"status": "ok"}
 
 
+@app.post("/debug/test-post")
+async def debug_test_post() -> dict:
+    return {"status": "ok", "method": "POST"}
+
+
+@app.post("/v1/debug/test-post")
+async def debug_test_post_v1() -> dict:
+    return {"status": "ok", "method": "POST", "path": "/v1/"}
+
+
 @app.get("/debug/openrouter")
 async def debug_openrouter() -> dict:
     """Temporary: test OpenRouter connectivity."""
