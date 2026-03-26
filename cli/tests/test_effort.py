@@ -33,7 +33,7 @@ def make_proxy_response(
     tool_calls: list | None = None,
     prompt_tokens: int = 100,
     completion_tokens: int = 50,
-    model: str = "deepseek/deepseek-r1:free",
+    model: str = "nvidia/nemotron-3-super-120b-a12b:free",
 ) -> dict:
     """Build a fake OpenRouter-style response."""
     message: dict = {"role": "assistant", "content": None}
@@ -84,17 +84,17 @@ def mock_httpx_responses(responses: list[dict]):
 
 def test_effort_models_low():
     from opentaion.commands.effort import EFFORT_MODELS
-    assert EFFORT_MODELS["low"] == "deepseek/deepseek-r1:free"
+    assert EFFORT_MODELS["low"] == "nvidia/nemotron-3-super-120b-a12b:free"
 
 
 def test_effort_models_medium():
     from opentaion.commands.effort import EFFORT_MODELS
-    assert EFFORT_MODELS["medium"] == "meta-llama/llama-3.3-70b-instruct:free"
+    assert EFFORT_MODELS["medium"] == "nvidia/nemotron-3-super-120b-a12b:free"
 
 
 def test_effort_models_high():
     from opentaion.commands.effort import EFFORT_MODELS
-    assert EFFORT_MODELS["high"] == "qwen/qwen-2.5-72b-instruct:free"
+    assert EFFORT_MODELS["high"] == "nvidia/nemotron-3-super-120b-a12b:free"
 
 
 # ── Single-iteration task (no tool calls) ─────────────────────────────────────
@@ -219,7 +219,7 @@ def test_effort_max_iterations_still_shows_cost_summary(tmp_config):
 # ── Default tier ───────────────────────────────────────────────────────────────
 
 def test_effort_default_tier_is_low(tmp_config):
-    """No tier specified → low tier → deepseek/deepseek-r1:free model."""
+    """No tier specified → low tier → nvidia/nemotron-3-super-120b-a12b:free model."""
     captured_model = []
 
     async def fake_post(url, **kwargs):
@@ -239,7 +239,7 @@ def test_effort_default_tier_is_low(tmp_config):
         runner = CliRunner()
         result = runner.invoke(main, ["effort", "fix the bug"])
     assert result.exit_code == 0, result.output
-    assert captured_model == ["deepseek/deepseek-r1:free"]
+    assert captured_model == ["nvidia/nemotron-3-super-120b-a12b:free"]
 
 
 # ── Missing config ─────────────────────────────────────────────────────────────

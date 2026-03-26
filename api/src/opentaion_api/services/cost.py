@@ -11,6 +11,7 @@ from decimal import Decimal
 # Pricing source: https://openrouter.ai/models (verify before redeploy)
 MODEL_PRICING: dict[str, tuple[float, float]] = {
     # Free tier models (no credit card required — all V1 default models)
+    "nvidia/nemotron-3-super-120b-a12b:free":  (0.0, 0.0),
     "deepseek/deepseek-r1:free":               (0.0, 0.0),
     "meta-llama/llama-3.3-70b-instruct:free":  (0.0, 0.0),
     "qwen/qwen-2.5-72b-instruct:free":         (0.0, 0.0),
@@ -23,9 +24,9 @@ MODEL_PRICING: dict[str, tuple[float, float]] = {
 # These are the defaults. Override per-tier with env vars in Railway for
 # experiments or pricing changes without modifying code.
 EFFORT_MODELS: dict[str, str] = {
-    "low":    os.environ.get("OPENROUTER_EFFORT_MODEL_LOW",    "deepseek/deepseek-r1:free"),
-    "medium": os.environ.get("OPENROUTER_EFFORT_MODEL_MEDIUM", "meta-llama/llama-3.3-70b-instruct:free"),
-    "high":   os.environ.get("OPENROUTER_EFFORT_MODEL_HIGH",   "qwen/qwen-2.5-72b-instruct:free"),
+    "low":    os.environ.get("OPENROUTER_EFFORT_MODEL_LOW",    "nvidia/nemotron-3-super-120b-a12b:free"),
+    "medium": os.environ.get("OPENROUTER_EFFORT_MODEL_MEDIUM", "nvidia/nemotron-3-super-120b-a12b:free"),
+    "high":   os.environ.get("OPENROUTER_EFFORT_MODEL_HIGH",   "nvidia/nemotron-3-super-120b-a12b:free"),
 }
 
 

@@ -90,17 +90,17 @@ def test_compute_cost_unknown_model_logs_warning(capsys):
 
 def test_effort_models_low_default():
     from opentaion_api.services.cost import EFFORT_MODELS
-    assert EFFORT_MODELS["low"] == "deepseek/deepseek-r1:free"
+    assert EFFORT_MODELS["low"] == "nvidia/nemotron-3-super-120b-a12b:free"
 
 
 def test_effort_models_medium_default():
     from opentaion_api.services.cost import EFFORT_MODELS
-    assert EFFORT_MODELS["medium"] == "meta-llama/llama-3.3-70b-instruct:free"
+    assert EFFORT_MODELS["medium"] == "nvidia/nemotron-3-super-120b-a12b:free"
 
 
 def test_effort_models_high_default():
     from opentaion_api.services.cost import EFFORT_MODELS
-    assert EFFORT_MODELS["high"] == "qwen/qwen-2.5-72b-instruct:free"
+    assert EFFORT_MODELS["high"] == "nvidia/nemotron-3-super-120b-a12b:free"
 
 
 def test_effort_models_all_tiers_present():

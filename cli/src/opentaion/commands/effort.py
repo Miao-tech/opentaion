@@ -16,9 +16,9 @@ from opentaion.core.config import read_config
 # Must stay in sync with the API. Both use the :free variants.
 
 EFFORT_MODELS: dict[str, str] = {
-    "low":    "deepseek/deepseek-r1:free",
-    "medium": "meta-llama/llama-3.3-70b-instruct:free",
-    "high":   "qwen/qwen-2.5-72b-instruct:free",
+    "low":    "nvidia/nemotron-3-super-120b-a12b:free",
+    "medium": "nvidia/nemotron-3-super-120b-a12b:free",
+    "high":   "nvidia/nemotron-3-super-120b-a12b:free",
 }
 
 # ── Client-side pricing for terminal display ──────────────────────────────────
@@ -26,6 +26,7 @@ EFFORT_MODELS: dict[str, str] = {
 # All V1 models are :free (0.0 per million tokens), so displayed cost is always $0.
 
 CLI_MODEL_PRICING: dict[str, tuple[float, float]] = {
+    "nvidia/nemotron-3-super-120b-a12b:free":  (0.0, 0.0),
     "deepseek/deepseek-r1:free":               (0.0, 0.0),
     "meta-llama/llama-3.3-70b-instruct:free":  (0.0, 0.0),
     "qwen/qwen-2.5-72b-instruct:free":         (0.0, 0.0),
