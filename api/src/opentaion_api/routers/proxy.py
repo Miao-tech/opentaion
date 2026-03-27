@@ -1,4 +1,5 @@
 # api/src/opentaion_api/routers/proxy.py
+import json
 import os
 import uuid
 
@@ -61,10 +62,17 @@ async def proxy_chat_completions(
     4. Returns OpenRouter response unmodified
     """
     openrouter_api_key = os.environ["OPENROUTER_API_KEY"]
-    body = await request.body()  # raw bytes — never JSON-parsed (NFR12)
+    body = await request.body()
+
+    # Extract requested model from request body — used as fallback if the
+    # response (especially SSE) does not include a model field
+    try:
+        request_model = json.loads(body).get("model", "unknown")
+    except Exception:
+        request_model = "unknown"
 
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(trust_env=False) as client:
             openrouter_response = await client.post(
                 OPENROUTER_URL,
                 content=body,
@@ -88,14 +96,33 @@ async def proxy_chat_completions(
         )
 
     # Parse OpenRouter response for usage logging (best-effort — malformed response → log zeros)
-    try:
-        response_data = openrouter_response.json()
-        model = response_data.get("model", "unknown")
-        usage = response_data.get("usage", {})
-        prompt_tokens = int(usage.get("prompt_tokens", 0))
-        completion_tokens = int(usage.get("completion_tokens", 0))
-    except Exception:
-        model, prompt_tokens, completion_tokens = "unknown", 0, 0
+    # Streaming responses (text/event-stream) are SSE — scan chunks for model + usage fields.
+    # Non-streaming responses are plain JSON.
+    model, prompt_tokens, completion_tokens = request_model, 0, 0
+    content_type = openrouter_response.headers.get("content-type", "")
+    if "text/event-stream" in content_type:
+        for line in openrouter_response.text.splitlines():
+            if not line.startswith("data: ") or line == "data: [DONE]":
+                continue
+            try:
+                chunk = json.loads(line[6:])
+                if chunk.get("model"):
+                    model = chunk["model"]
+                usage = chunk.get("usage") or {}
+                if usage.get("prompt_tokens"):
+                    prompt_tokens = int(usage["prompt_tokens"])
+                    completion_tokens = int(usage.get("completion_tokens", 0))
+            except Exception:
+                pass
+    else:
+        try:
+            response_data = openrouter_response.json()
+            model = response_data.get("model", "unknown")
+            usage = response_data.get("usage", {})
+            prompt_tokens = int(usage.get("prompt_tokens", 0))
+            completion_tokens = int(usage.get("completion_tokens", 0))
+        except Exception:
+            pass
 
     # Enqueue usage log write — response is returned to CLI before this executes (NFR9)
     background_tasks.add_task(

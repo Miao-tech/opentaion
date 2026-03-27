@@ -11,7 +11,9 @@ from decimal import Decimal
 # Pricing source: https://openrouter.ai/models (verify before redeploy)
 MODEL_PRICING: dict[str, tuple[float, float]] = {
     # Free tier models (no credit card required — all V1 default models)
-    "nvidia/nemotron-3-super-120b-a12b:free":  (0.0, 0.0),
+    # OpenRouter sometimes returns a dated variant of the model ID in responses
+    "nvidia/nemotron-3-super-120b-a12b:free":          (0.0, 0.0),
+    "nvidia/nemotron-3-super-120b-a12b-20230311:free": (0.0, 0.0),
     "deepseek/deepseek-r1:free":               (0.0, 0.0),
     "meta-llama/llama-3.3-70b-instruct:free":  (0.0, 0.0),
     "qwen/qwen-2.5-72b-instruct:free":         (0.0, 0.0),
