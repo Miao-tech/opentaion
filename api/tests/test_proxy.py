@@ -173,6 +173,41 @@ async def test_proxy_success_enqueues_usage_log(mock_openrouter_success, monkeyp
     assert call_args[0][3] == 5  # completion_tokens
 
 
+async def test_proxy_streaming_response_logs_usage(monkeypatch):
+    """Streaming SSE responses: model and usage extracted from last chunk."""
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
+    sse_body = (
+        b'data: {"model":"nvidia/nemotron-3-super-120b-a12b:free","choices":[{"delta":{"content":"hi"}}],"usage":null}\n\n'
+        b'data: {"model":"nvidia/nemotron-3-super-120b-a12b:free","choices":[{"finish_reason":"stop","delta":{}}],"usage":{"prompt_tokens":20,"completion_tokens":8}}\n\n'
+        b"data: [DONE]\n\n"
+    )
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.content = sse_body
+    mock_response.text = sse_body.decode()
+    mock_response.headers = {"content-type": "text/event-stream"}
+
+    mock_client = AsyncMock()
+    mock_client.post = AsyncMock(return_value=mock_response)
+    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = AsyncMock(return_value=None)
+
+    with patch("opentaion_api.routers.proxy.httpx.AsyncClient", return_value=mock_client):
+        with patch("opentaion_api.routers.proxy.write_usage_log") as mock_write:
+            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                response = await client.post(
+                    "/v1/chat/completions",
+                    content=b'{"model": "nvidia/nemotron-3-super-120b-a12b:free", "messages": [], "stream": true}',
+                    headers={"Authorization": "Bearer ot_testkey"},
+                )
+    assert response.status_code == 200
+    mock_write.assert_called_once()
+    call_args = mock_write.call_args[0]
+    assert call_args[1] == "nvidia/nemotron-3-super-120b-a12b:free"
+    assert call_args[2] == 20   # prompt_tokens
+    assert call_args[3] == 8    # completion_tokens
+
+
 async def test_proxy_error_does_not_enqueue_usage_log(monkeypatch):
     """On OpenRouter error, background task must NOT be enqueued."""
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
