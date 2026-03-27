@@ -55,4 +55,6 @@ uv run python -m opentaion effort "fix the type errors in auth.py"
 ## Links
 
 - [Full User & Deployment Guide](docs/guide.md)
+- [Running OpenTalon Locally](docs/local-deployment.md)
+- [Using OpenTalon with Opencode](docs/opencode-integration.md)
 - [Web Dashboard](https://opentaion.vercel.app)

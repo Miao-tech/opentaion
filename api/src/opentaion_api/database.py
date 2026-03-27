@@ -16,9 +16,15 @@ DATABASE_URL = (
     else _raw_url
 )
 
+# LOCAL=true disables SSL — Supabase local (Docker) does not use SSL
+_local = os.environ.get("LOCAL", "").lower() in ("1", "true", "yes")
+_connect_args: dict = {"timeout": 10, "statement_cache_size": 0}
+if not _local:
+    _connect_args["ssl"] = "require"
+
 engine = create_async_engine(
     DATABASE_URL,
-    connect_args={"ssl": "require", "timeout": 10, "statement_cache_size": 0},
+    connect_args=_connect_args,
     echo=False,
 )
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
