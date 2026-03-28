@@ -168,7 +168,7 @@ async def test_proxy_success_enqueues_usage_log(mock_openrouter_success, monkeyp
     mock_write.assert_called_once()
     call_args = mock_write.call_args
     assert call_args[0][0] == TEST_USER_ID  # user_id
-    assert call_args[0][1] == "deepseek/deepseek-r1:free"  # model
+    assert call_args[0][1] == "deepseek/deepseek-r1:free"  # model — always the request model
     assert call_args[0][2] == 10  # prompt_tokens
     assert call_args[0][3] == 5  # completion_tokens
 
@@ -203,9 +203,96 @@ async def test_proxy_streaming_response_logs_usage(monkeypatch):
     assert response.status_code == 200
     mock_write.assert_called_once()
     call_args = mock_write.call_args[0]
-    assert call_args[1] == "nvidia/nemotron-3-super-120b-a12b:free"
+    assert call_args[1] == "nvidia/nemotron-3-super-120b-a12b:free"  # request model preserved
     assert call_args[2] == 20   # prompt_tokens
     assert call_args[3] == 8    # completion_tokens
+
+
+async def test_proxy_routes_to_configured_provider(monkeypatch):
+    """siliconflow/ prefix → request forwarded to SiliconFlow base URL."""
+    monkeypatch.setenv("PROVIDER_SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1")
+    monkeypatch.setenv("PROVIDER_SILICONFLOW_API_KEY", "sf-key-123")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.content = b'{"model":"Qwen/Qwen2.5-72B","choices":[],"usage":{"prompt_tokens":5,"completion_tokens":3}}'
+    mock_response.headers = {"content-type": "application/json"}
+    mock_response.json = MagicMock(return_value={
+        "model": "Qwen/Qwen2.5-72B",
+        "choices": [],
+        "usage": {"prompt_tokens": 5, "completion_tokens": 3},
+    })
+    mock_client = AsyncMock()
+    mock_client.post = AsyncMock(return_value=mock_response)
+    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = AsyncMock(return_value=None)
+
+    with patch("opentaion_api.routers.proxy.httpx.AsyncClient", return_value=mock_client):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            await client.post(
+                "/v1/chat/completions",
+                content=b'{"model":"siliconflow/Qwen/Qwen2.5-72B","messages":[]}',
+                headers={"Authorization": "Bearer ot_testkey", "Content-Type": "application/json"},
+            )
+
+    called_url = mock_client.post.call_args[0][0]
+    assert "siliconflow.cn" in called_url
+
+
+async def test_proxy_strips_provider_prefix_in_forwarded_body(monkeypatch):
+    """siliconflow/Qwen/Qwen2.5-72B → forwarded body contains model=Qwen/Qwen2.5-72B."""
+    monkeypatch.setenv("PROVIDER_SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1")
+    monkeypatch.setenv("PROVIDER_SILICONFLOW_API_KEY", "sf-key-123")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.content = b'{"model":"Qwen/Qwen2.5-72B","choices":[],"usage":{}}'
+    mock_response.headers = {"content-type": "application/json"}
+    mock_response.json = MagicMock(return_value={"model": "Qwen/Qwen2.5-72B", "choices": [], "usage": {}})
+    mock_client = AsyncMock()
+    mock_client.post = AsyncMock(return_value=mock_response)
+    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = AsyncMock(return_value=None)
+
+    with patch("opentaion_api.routers.proxy.httpx.AsyncClient", return_value=mock_client):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            await client.post(
+                "/v1/chat/completions",
+                content=b'{"model":"siliconflow/Qwen/Qwen2.5-72B","messages":[]}',
+                headers={"Authorization": "Bearer ot_testkey", "Content-Type": "application/json"},
+            )
+
+    import json as _json
+    forwarded_body = _json.loads(mock_client.post.call_args.kwargs["content"])
+    assert forwarded_body["model"] == "Qwen/Qwen2.5-72B"
+
+
+async def test_proxy_no_prefix_uses_default_provider(monkeypatch):
+    """No provider prefix → routes to default (openrouter)."""
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-test")
+
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.content = b'{"model":"nvidia/nemotron:free","choices":[],"usage":{"prompt_tokens":1,"completion_tokens":1}}'
+    mock_response.headers = {"content-type": "application/json"}
+    mock_response.json = MagicMock(return_value={"model": "nvidia/nemotron:free", "choices": [], "usage": {"prompt_tokens": 1, "completion_tokens": 1}})
+    mock_client = AsyncMock()
+    mock_client.post = AsyncMock(return_value=mock_response)
+    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = AsyncMock(return_value=None)
+
+    with patch("opentaion_api.routers.proxy.httpx.AsyncClient", return_value=mock_client):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            await client.post(
+                "/v1/chat/completions",
+                content=b'{"model":"nvidia/nemotron:free","messages":[]}',
+                headers={"Authorization": "Bearer ot_testkey", "Content-Type": "application/json"},
+            )
+
+    called_url = mock_client.post.call_args[0][0]
+    assert "openrouter.ai" in called_url
 
 
 async def test_proxy_error_does_not_enqueue_usage_log(monkeypatch):

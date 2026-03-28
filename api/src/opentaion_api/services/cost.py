@@ -9,17 +9,11 @@ from decimal import Decimal
 # never a DB migration (architecture decision: model_pricing as Python dict).
 #
 # Pricing source: https://openrouter.ai/models (verify before redeploy)
+# Only paid models need entries here — any model ending in ":free" is handled
+# automatically by compute_cost() without needing an explicit entry.
+# Prices as of 2026-03-24. Source: https://openrouter.ai/models
 MODEL_PRICING: dict[str, tuple[float, float]] = {
-    # Free tier models (no credit card required — all V1 default models)
-    # OpenRouter sometimes returns a dated variant of the model ID in responses
-    "nvidia/nemotron-3-super-120b-a12b:free":          (0.0, 0.0),
-    "nvidia/nemotron-3-super-120b-a12b-20230311:free": (0.0, 0.0),
-    "deepseek/deepseek-r1:free":               (0.0, 0.0),
-    "meta-llama/llama-3.3-70b-instruct:free":  (0.0, 0.0),
-    "qwen/qwen-2.5-72b-instruct:free":         (0.0, 0.0),
-    # Paid model example — used in tests and available for future tiers
-    # Prices as of 2026-03-24: $0.55/M prompt, $2.19/M completion
-    "deepseek/deepseek-r1":                    (0.55, 2.19),
+    "deepseek/deepseek-r1": (0.55, 2.19),
 }
 
 # ── Effort tier → model mapping ───────────────────────────────────────────────
@@ -35,17 +29,23 @@ EFFORT_MODELS: dict[str, str] = {
 def compute_cost(model: str, prompt_tokens: int, completion_tokens: int) -> Decimal:
     """Compute cost in USD from token counts and MODEL_PRICING.
 
-    Returns Decimal("0") for unknown models (graceful degradation).
+    Resolution order:
+    1. Any model ending in ":free" → $0 (covers all providers, including dated
+       variants like "nvidia/nemotron-...-20230311:free")
+    2. Exact match in MODEL_PRICING → compute from per-million-token prices
+    3. Unknown model → $0 silently (cost data unavailable for external providers)
+
     Never accepts cost from external sources — all computation is local (NFR13).
-    Uses Decimal arithmetic throughout — never float (avoids rounding errors in cost_usd).
+    Uses Decimal arithmetic throughout — never float (avoids rounding errors).
     """
+    if model.endswith(":free"):
+        return Decimal("0")
+
     if model not in MODEL_PRICING:
-        print(f"[WARNING] compute_cost: unknown model {model!r} — defaulting cost to 0")
         return Decimal("0")
 
     prompt_price, completion_price = MODEL_PRICING[model]
-    cost = (
+    return (
         Decimal(str(prompt_tokens)) / Decimal("1000000") * Decimal(str(prompt_price))
         + Decimal(str(completion_tokens)) / Decimal("1000000") * Decimal(str(completion_price))
     )
-    return cost

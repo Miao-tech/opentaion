@@ -70,20 +70,35 @@ def test_compute_cost_zero_tokens_paid_model():
     assert result == Decimal("0")
 
 
-# ── compute_cost: unknown model ────────────────────────────────────────────────
+# ── compute_cost: :free suffix ────────────────────────────────────────────────
 
-def test_compute_cost_unknown_model_returns_zero(capsys):
+def test_compute_cost_free_suffix_returns_zero():
     from opentaion_api.services.cost import compute_cost
-    result = compute_cost("unknown/model-xyz:free", prompt_tokens=1000, completion_tokens=500)
+    result = compute_cost("any-provider/any-model-name:free", prompt_tokens=1_000_000, completion_tokens=1_000_000)
     assert result == Decimal("0")
 
 
-def test_compute_cost_unknown_model_logs_warning(capsys):
+def test_compute_cost_free_suffix_no_warning(capsys):
     from opentaion_api.services.cost import compute_cost
-    compute_cost("unknown/model-xyz:free", prompt_tokens=1000, completion_tokens=500)
+    compute_cost("siliconflow/some-model:free", prompt_tokens=1000, completion_tokens=500)
     captured = capsys.readouterr()
-    assert "unknown/model-xyz:free" in captured.out
-    assert "WARNING" in captured.out
+    assert "WARNING" not in captured.out
+
+
+# ── compute_cost: unknown model ────────────────────────────────────────────────
+
+def test_compute_cost_unknown_model_returns_zero():
+    from opentaion_api.services.cost import compute_cost
+    result = compute_cost("Qwen/Qwen2.5-72B-Instruct", prompt_tokens=1000, completion_tokens=500)
+    assert result == Decimal("0")
+
+
+def test_compute_cost_unknown_model_no_warning(capsys):
+    """Unknown models from external providers produce no warning — cost data simply unavailable."""
+    from opentaion_api.services.cost import compute_cost
+    compute_cost("Qwen/Qwen2.5-72B-Instruct", prompt_tokens=1000, completion_tokens=500)
+    captured = capsys.readouterr()
+    assert "WARNING" not in captured.out
 
 
 # ── EFFORT_MODELS: default mappings ───────────────────────────────────────────
@@ -108,15 +123,13 @@ def test_effort_models_all_tiers_present():
     assert set(EFFORT_MODELS.keys()) == {"low", "medium", "high"}
 
 
-def test_effort_models_all_in_model_pricing():
-    """Every model referenced by EFFORT_MODELS must exist in MODEL_PRICING."""
-    cost_module = reload_cost_module()  # get clean snapshot, not a stale post-override reload
-    EFFORT_MODELS = cost_module.EFFORT_MODELS
-    MODEL_PRICING = cost_module.MODEL_PRICING
-    for tier, model_id in EFFORT_MODELS.items():
-        assert model_id in MODEL_PRICING, (
-            f"EFFORT_MODELS[{tier!r}] = {model_id!r} not found in MODEL_PRICING"
-        )
+def test_effort_models_all_compute_without_warning(capsys):
+    """Every model in EFFORT_MODELS must compute cost without a WARNING."""
+    cost_module = reload_cost_module()
+    for tier, model_id in cost_module.EFFORT_MODELS.items():
+        cost_module.compute_cost(model_id, prompt_tokens=1000, completion_tokens=500)
+    captured = capsys.readouterr()
+    assert "WARNING" not in captured.out
 
 
 # ── EFFORT_MODELS: env var overrides ──────────────────────────────────────────
