@@ -278,6 +278,94 @@ uv run python -m opentaion effort "list all Python files in the current director
 
 ---
 
+## Optional: Use real SMTP instead of Mailpit
+
+By default, Mailpit intercepts all emails locally — nothing is delivered to a real inbox. This is fine for solo development but inconvenient when you want to test the full email flow or share the local setup with others.
+
+You can replace Mailpit with any real SMTP provider. QQ Mail works well for quick testing.
+
+### Using QQ Mail SMTP
+
+**Step 1 — Get your QQ SMTP authorization code**
+
+QQ Mail does not allow your login password for SMTP. You must generate a separate authorization code:
+
+1. Log in to [mail.qq.com](https://mail.qq.com)
+2. **Settings** (设置) → **Account** (账户)
+3. Scroll to the **POP3/IMAP/SMTP** section
+4. Enable **SMTP service**
+5. Click **Generate authorization code** (生成授权码) — verify via SMS
+6. Copy the code (looks like `abcdefghijklmnop`) — it is shown only once
+
+**Step 2 — Update `supabase/config.toml`**
+
+Find the `[auth.email.smtp]` section and make sure it reads:
+
+```toml
+[auth.email.smtp]
+enabled = true
+host = "smtp.qq.com"
+port = 465
+user = "env(SMTP_USER)"
+pass = "env(SMTP_PASSWORD)"
+admin_email = "env(SMTP_USER)"
+sender_name = "OpenTalon"
+```
+
+Also increase the email rate limit (default is 2/hour, too low for real use):
+
+```toml
+[auth.rate_limit]
+email_sent = 100
+```
+
+**Step 3 — Set env vars and restart Supabase**
+
+```bash
+export SMTP_USER=your_qq_number@qq.com
+export SMTP_PASSWORD=abcdefghijklmnop   # authorization code, not your QQ login password
+
+supabase stop && supabase start
+```
+
+**Step 4 — Test it**
+
+1. Go to http://localhost:5173
+2. Enter your real email address
+3. Click **Send magic link**
+4. Check your real inbox — the magic link email arrives from your QQ address
+
+> Once SMTP is enabled, Mailpit no longer receives emails. To go back to Mailpit, set `[auth.email.smtp] enabled = false` and restart Supabase.
+
+---
+
+### Using Resend (recommended for cloud deployment)
+
+[Resend](https://resend.com) is the recommended provider for production — free tier allows 3,000 emails/month.
+
+1. Sign up at resend.com → **API Keys** → **Create API Key** → copy the `re_...` key
+2. Update `supabase/config.toml`:
+
+```toml
+[auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(SMTP_PASSWORD)"
+admin_email = "noreply@yourdomain.com"
+sender_name = "OpenTalon"
+```
+
+3. Set env var and restart:
+
+```bash
+export SMTP_PASSWORD=re_...
+supabase stop && supabase start
+```
+
+---
+
 ## Running everything together
 
 In production, three processes run in separate services. Locally, you run them in three separate terminal tabs:
